@@ -1,0 +1,32 @@
+{
+  "name": "fiverr-camouflage",
+  "version": "1.0.0",
+  "description": "Detect Hidden Object in Your Image",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "nodemon index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/fahim2204/Fiverr-Camouflage.git"
+  },
+  "author": "fahim2204",
+  "license": "ISC",
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "cors": "^2.8.5",
+    "dotenv": "^16.0.3",
+    "express": "^4.18.2",
+    "express-validator": "^6.14.2",
+    "jsonwebtoken": "^8.5.1",
+    "mongoose": "^6.7.5"
+  },
+  "bugs": {
+    "url": "https://github.com/fahim2204/Fiverr-Camouflage/issues"
+  },
+  "homepage": "https://github.com/fahim2204/Fiverr-Camouflage#readme",
+  "devDependencies": {
+    "nodemon": "^2.0.20"
+  }
+}
