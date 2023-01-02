@@ -3,7 +3,7 @@ import Link from "next/link";
 import Sidebar from "../components/sidebar";
 import Footer from "../components/footer";
 import { Fragment, useState, useRef } from "react";
-import { Line, Bar,Pie } from "react-chartjs-2";
+import { Line, Bar, Pie } from "react-chartjs-2";
 import { Chart as ChartJS } from "chart.js/auto";
 
 export default function Home() {
@@ -30,18 +30,23 @@ export default function Home() {
                 <div className="grid grid-cols-3 gap-6">
                   <div>
                     <Line
+                    height={80}
+                    width={"100%"}
                       data={{
-                        labels: ["Jun", "Jul", "Aug"],
+                        labels: [
+                          "18:48:01",
+                          "18:48:11",
+                          "18:51:00",
+                          "18:51:10",
+                          "18:51:20",
+                          "18:51:31",
+                          "18:51:41",
+                          "18:51:51",
+                        ],
                         datasets: [
                           {
-                            id: 1,
-                            label: "",
-                            data: [5, 6, 7],
-                          },
-                          {
-                            id: 2,
-                            label: "",
-                            data: [3, 2, 1],
+                            label: "Temperature",
+                            data: [23.84, 23.81, 23.84, 23.87, 23.87, 23.87, 23.91],
                           },
                         ],
                       }}
@@ -49,18 +54,23 @@ export default function Home() {
                   </div>
                   <div>
                     <Bar
+                     height={80}
+                     width={"100%"}
                       data={{
-                        labels: ["Jun", "Jul", "Aug"],
+                        labels: [
+                          "18:48:01",
+                          "18:48:11",
+                          "18:51:00",
+                          "18:51:10",
+                          "18:51:20",
+                          "18:51:31",
+                          "18:51:41",
+                          "18:51:51",
+                        ],
                         datasets: [
                           {
-                            id: 1,
-                            label: "",
-                            data: [5, 6, 7],
-                          },
-                          {
-                            id: 2,
-                            label: "",
-                            data: [3, 2, 1],
+                            label: "Registance",
+                            data: [13.84, 22.81, 10.84, 23.87, 4.87, 23.87, 23.91],
                           },
                         ],
                       }}
@@ -68,18 +78,26 @@ export default function Home() {
                   </div>
                   <div>
                     <Pie
+                     height={80}
+                     width={"100%"}
                       data={{
-                        labels: ["Jun", "Jul", "Aug"],
+                        labels: ["Jun", "Jul", "Aug", "sep"],
                         datasets: [
                           {
-                            id: 1,
-                            label: "",
-                            data: [5, 6, 7],
+                            label: "a",
+                            data: [5, 1, 7, 1],
                           },
                           {
-                            id: 2,
-                            label: "",
-                            data: [3, 2, 1],
+                            label: "b",
+                            data: [3, 2, 1, 9],
+                          },
+                          {
+                            label: "c",
+                            data: [6, 2, 1, 4],
+                          },
+                          {
+                            label: "d",
+                            data: [8, 2, 1, 3],
                           },
                         ],
                       }}
