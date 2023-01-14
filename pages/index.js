@@ -1,5 +1,6 @@
 import Head from "next/head";
 import Link from "next/link";
+import React from "react";
 import Sidebar from "../components/sidebar";
 import Footer from "../components/footer";
 import { Fragment, useState, useRef } from "react";
@@ -9,10 +10,12 @@ import { Chart as ChartJS } from "chart.js/auto";
 import { BsFillPlusCircleFill } from "react-icons/bs";
 import { RiDeviceFill } from "react-icons/ri";
 import { AiTwotoneDelete } from "react-icons/ai";
-import { Dialog, Transition } from "@headlessui/react";
+import { Button, Modal, Label, TextInput, Checkbox } from "flowbite-react";
+
+
 
 export default function Home() {
-  let [isAddDeviceOpen, setIsAddDeviceOpen] = useState(false);
+  const [isAddDeviceModalOpen, setIsAddDeviceModalOpen] = useState(false);
 
   const [data, setData] = useState(null);
 
@@ -34,55 +37,89 @@ export default function Home() {
               <div className="flex flex-col shadow rounded-xl p-6">
                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
                   <div
-                    onClick={() => setIsAddDeviceOpen(!isAddDeviceOpen)}
+                    onClick={() => { setIsAddDeviceModalOpen(true) }}
                     className="bg-sf-green-600 rounded-xl shadow h-32 flex-col flex items-center justify-center cursor-pointer group hover:bg-sf-green-500 hover:shadow-2xl transition-all duration-300"
                   >
                     <BsFillPlusCircleFill className="text-sf-green-200 text-3xl group-hover:text-white transition-all duration-300" />
                     <span className="text-sf-green-200 text-xs mt-1 group-hover:text-white transition-all duration-300">
                       Add Device
                     </span>
-                    <Transition appear show={isAddDeviceOpen} as={Fragment}>
-                      <Dialog
-                        as="div"
-                        className="relative z-10"
-                        onClose={() => setIsAddDeviceOpen(!isAddDeviceOpen)}
-                      >
-                        <Transition.Child
-                          as={Fragment}
-                          enter="ease-out duration-300"
-                          enterFrom="opacity-0"
-                          enterTo="opacity-100"
-                          leave="ease-in duration-200"
-                          leaveFrom="opacity-100"
-                          leaveTo="opacity-0"
-                        >
-                          <div className="fixed inset-0 bg-black bg-opacity-25" />
-                        </Transition.Child>
-
-                        <div className="fixed inset-0 overflow-y-auto">
-                          <div className="flex min-h-full items-center justify-center p-4 text-center">
-                            <Transition.Child
-                              as={Fragment}
-                              enter="ease-out duration-300"
-                              enterFrom="opacity-0 scale-95"
-                              enterTo="opacity-100 scale-100"
-                              leave="ease-in duration-200"
-                              leaveFrom="opacity-100 scale-100"
-                              leaveTo="opacity-0 scale-95"
+                  </div>
+                  <>
+                    <Modal
+                      show={isAddDeviceModalOpen}
+                      size="md"
+                      popup={true}
+                      onClose={() => { setIsAddDeviceModalOpen(false) }}
+                    >
+                      <Modal.Header />
+                      <Modal.Body>
+                        <div className="space-y-6 px-6 pb-4 sm:pb-6 lg:px-8 xl:pb-8">
+                          <h3 className="text-xl font-medium text-gray-900 dark:text-white">
+                            Sign in to our platform
+                          </h3>
+                          <div>
+                            <div className="mb-2 block">
+                              <Label
+                                htmlFor="email"
+                                value="Your email"
+                              />
+                            </div>
+                            <TextInput
+                              id="email"
+                              placeholder="name@company.com"
+                              required={true}
+                            />
+                          </div>
+                          <div>
+                            <div className="mb-2 block">
+                              <Label
+                                htmlFor="password"
+                                value="Your password"
+                              />
+                            </div>
+                            <TextInput
+                              id="password"
+                              type="password"
+                              required={true}
+                            />
+                          </div>
+                          <div className="flex justify-between">
+                            <div className="flex items-center gap-2">
+                              <Checkbox id="remember" />
+                              <Label htmlFor="remember">
+                                Remember me
+                              </Label>
+                            </div>
+                            <a
+                              href="/modal"
+                              className="text-sm text-blue-700 hover:underline dark:text-blue-500"
                             >
-                              <Dialog.Panel className="w-full max-w-md transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all">
-                                heelo
-                              </Dialog.Panel>
-                            </Transition.Child>
+                              Lost Password?
+                            </a>
+                          </div>
+                          <div className="w-full">
+                            <Button>
+                              Log in to your account
+                            </Button>
+                          </div>
+                          <div className="text-sm font-medium text-gray-500 dark:text-gray-300">
+                            Not registered?{' '}
+                            <a
+                              href="/modal"
+                              className="text-blue-700 hover:underline dark:text-blue-500"
+                            >
+                              Create account
+                            </a>
                           </div>
                         </div>
-                      </Dialog>
-                    </Transition>
-                  </div>
+                      </Modal.Body>
+                    </Modal>
+                  </>
                   <div className="bg-sf-green-600 rounded-xl shadow h-32 flex flex-col group items-center cursor-pointer relative hover:bg-sf-green-500 hover:shadow-2xl transition-all duration-300">
                     <div className="text-xs text-white my-1 flex items-center absolute top-0">
-                      <span class="text-sm text-sf-green-200">Online</span>
-                      <div class="bg-green-600 rounded-full w-2 h-2 ml-1"></div>
+                      <span className="text-sm text-sf-green-200">Online</span>
+                      <div className="bg-green-600 rounded-full w-2 h-2 ml-1"></div>
                     </div>
                     <div className="my-auto flex flex-col items-center select-none">
                       <RiDeviceFill className="text-sf-green-200 text-3xl group-hover:text-sf-green-50 transition-all duration-300" />
@@ -96,8 +133,8 @@ export default function Home() {
                   </div>
                   <div className="bg-sf-green-600 rounded-xl shadow h-32 flex flex-col group items-center cursor-pointer relative hover:bg-sf-green-500 hover:shadow-2xl transition-all duration-300">
                     <div className="text-xs text-white my-1 flex items-center absolute top-0">
-                      <span class="text-sm text-sf-green-200">Offline</span>
-                      <div class="bg-red-700 rounded-full w-2 h-2 ml-1"></div>
+                      <span className="text-sm text-sf-green-200">Offline</span>
+                      <div className="bg-red-700 rounded-full w-2 h-2 ml-1"></div>
                     </div>
                     <div className="my-auto flex flex-col items-center select-none">
                       <RiDeviceFill className="text-sf-green-200 text-3xl group-hover:text-sf-green-50 transition-all duration-300" />

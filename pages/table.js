@@ -9,7 +9,6 @@ import { Chart as ChartJS } from "chart.js/auto";
 import { BsFillPlusCircleFill } from "react-icons/bs";
 import { RiDeviceFill } from "react-icons/ri";
 import { AiTwotoneDelete } from "react-icons/ai";
-import { Dialog, Transition } from "@headlessui/react";
 
 export default function Home() {
   let [isAddDeviceOpen, setIsAddDeviceOpen] = useState(false);
@@ -41,48 +40,11 @@ export default function Home() {
                     <span className="text-sf-green-200 text-xs mt-1 group-hover:text-white transition-all duration-300">
                       Add Device
                     </span>
-                    <Transition appear show={isAddDeviceOpen} as={Fragment}>
-                      <Dialog
-                        as="div"
-                        className="relative z-10"
-                        onClose={() => setIsAddDeviceOpen(!isAddDeviceOpen)}
-                      >
-                        <Transition.Child
-                          as={Fragment}
-                          enter="ease-out duration-300"
-                          enterFrom="opacity-0"
-                          enterTo="opacity-100"
-                          leave="ease-in duration-200"
-                          leaveFrom="opacity-100"
-                          leaveTo="opacity-0"
-                        >
-                          <div className="fixed inset-0 bg-black bg-opacity-25" />
-                        </Transition.Child>
-
-                        <div className="fixed inset-0 overflow-y-auto">
-                          <div className="flex min-h-full items-center justify-center p-4 text-center">
-                            <Transition.Child
-                              as={Fragment}
-                              enter="ease-out duration-300"
-                              enterFrom="opacity-0 scale-95"
-                              enterTo="opacity-100 scale-100"
-                              leave="ease-in duration-200"
-                              leaveFrom="opacity-100 scale-100"
-                              leaveTo="opacity-0 scale-95"
-                            >
-                              <Dialog.Panel className="w-full max-w-md transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all">
-                                heelo
-                              </Dialog.Panel>
-                            </Transition.Child>
-                          </div>
-                        </div>
-                      </Dialog>
-                    </Transition>
                   </div>
                   <div className="bg-sf-green-600 rounded-xl shadow h-32 flex flex-col group items-center cursor-pointer relative hover:bg-sf-green-500 hover:shadow-2xl transition-all duration-300">
                     <div className="text-xs text-white my-1 flex items-center absolute top-0">
-                      <span class="text-sm text-sf-green-200">Online</span>
-                      <div class="bg-green-600 rounded-full w-2 h-2 ml-1"></div>
+                      <span className="text-sm text-sf-green-200">Online</span>
+                      <div className="bg-green-600 rounded-full w-2 h-2 ml-1"></div>
                     </div>
                     <div className="my-auto flex flex-col items-center select-none">
                       <RiDeviceFill className="text-sf-green-200 text-3xl group-hover:text-sf-green-50 transition-all duration-300" />
@@ -96,8 +58,8 @@ export default function Home() {
                   </div>
                   <div className="bg-sf-green-600 rounded-xl shadow h-32 flex flex-col group items-center cursor-pointer relative hover:bg-sf-green-500 hover:shadow-2xl transition-all duration-300">
                     <div className="text-xs text-white my-1 flex items-center absolute top-0">
-                      <span class="text-sm text-sf-green-200">Offline</span>
-                      <div class="bg-red-700 rounded-full w-2 h-2 ml-1"></div>
+                      <span className="text-sm text-sf-green-200">Offline</span>
+                      <div className="bg-red-700 rounded-full w-2 h-2 ml-1"></div>
                     </div>
                     <div className="my-auto flex flex-col items-center select-none">
                       <RiDeviceFill className="text-sf-green-200 text-3xl group-hover:text-sf-green-50 transition-all duration-300" />
