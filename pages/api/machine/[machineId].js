@@ -21,7 +21,7 @@ export default async (req, res) => {
             });
             break
         default:
-            res.status(400).json({ success: false })
+            res.status(405).json({ error: "Bad Method Called!!"})
             break
     }
 }
