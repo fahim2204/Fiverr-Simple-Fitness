@@ -15,7 +15,7 @@ const Register = () => {
     initialValues: {
       fullName: "",
       username: "",
-      mobile: "",
+      phone: "",
       password: "",
       confirmPassword: "",
     },
@@ -105,23 +105,23 @@ const Register = () => {
                   </div>
                 </div>
                 <div className="flex flex-col space-y-1">
-                  <label for="mobile" className="text-sm font-semibold text-gray-500">
+                  <label for="phone" className="text-sm font-semibold text-gray-500">
                     Mobile No.
                   </label>
                   <input
                     type="text"
-                    id="mobile"
-                    name="mobile"
+                    id="phone"
+                    name="phone"
                     className={`px-3 py-1 transition duration-300 border ${
-                      formik.errors.mobile && formik.touched.mobile
+                      formik.errors.phone && formik.touched.phone
                         ? "border-rose-600"
                         : "border-gray-300"
                     } rounded focus:border-transparent focus:outline-none focus:ring-4 focus:ring-blue-200`}
-                    {...formik.getFieldProps("mobile")}
+                    {...formik.getFieldProps("phone")}
                   />
                   <div className="text-rose-600 text-xs mt-1">
-                    {formik.errors.mobile && formik.touched.mobile && (
-                      <div>{formik.errors.mobile}</div>
+                    {formik.errors.phone && formik.touched.phone && (
+                      <div>{formik.errors.phone}</div>
                     )}
                   </div>
                 </div>

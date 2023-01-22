@@ -1,4 +1,5 @@
 import User from "../../../model/user";
+import { changeObjArrToCamel } from "../../../lib/caseChange";
 
 export default async (req, res) => {
     const { method } = req
@@ -14,7 +15,7 @@ export default async (req, res) => {
                         const { password, token, ...rest } = item;
                         return rest;
                       });
-                    res.status(200).send(newData);
+                    res.status(200).send(changeObjArrToCamel(newData));
                 }
             });
             break
