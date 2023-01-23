@@ -1,6 +1,5 @@
 import Head from "next/head";
 import Link from "next/link";
-import Navbar from "../components/navbar";
 import Footer from "../components/footer";
 import { BiArrowBack, BiCamera } from "react-icons/bi";
 import { useEffect, useState, useRef } from "react";
