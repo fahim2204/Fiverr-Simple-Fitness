@@ -1,7 +1,7 @@
 import User from "../../model/user";
 import { hash } from "bcryptjs";
 import {registerValidate} from "../../lib/validate"
-import {changeAllToSnake} from "../../lib/caseChange"
+import {changeObjToSnake} from "../../lib/caseChange"
 
 export default async (req, res) => {
     const { method } = req
@@ -23,7 +23,7 @@ export default async (req, res) => {
             delete req.body.confirmPassword
 
             // Change All key Value to Snake Case For DB
-            req.body = changeAllToSnake(req.body)
+            req.body = changeObjToSnake(req.body)
 
             // Process Register User
             User.RegisterUser(req.body, (err, data) => {

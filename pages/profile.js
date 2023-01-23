@@ -10,10 +10,8 @@ export default function Home() {
   return (
     <>
       <Head>
-        <title>OulYas - Blog</title>
       </Head>
       <main>
-        <Navbar />
         <div className="sm:max-w-4xl mx-auto mt-6 grid grid-cols-14 gap-8 mb-5">
           <div className="col-span-4">
             <div className="flex flex-col items-center border rounded-xl shadow px-8 py-4">
