@@ -36,9 +36,9 @@ export default function Home() {
                 />
               </div>
 
-              <h3 className="text-slate-600 font-semibold mt-2">@{session?.username}</h3>
+              <h3 className="text-slate-600 font-semibold mt-2">@username</h3>
               <h3 className="text-xl font-semibold mb-3 mt-1 text-slate-800 drop-shadow">
-                {session?.fullName}
+                Full Name
               </h3>
             </div>
           </div>
