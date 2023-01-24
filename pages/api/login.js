@@ -15,7 +15,7 @@ export default async (req, res) => {
         return res.status(400).json({ errors });
       } else {
         User.GetByUsername(req.body.username, async (err, user) => {
-          if (user.length === 0) {
+          if(!err){if (user.length === 0) {
             errors.username = "User not found";
             return res.status(400).json({ errors });
           } else {
@@ -23,7 +23,6 @@ export default async (req, res) => {
             const checkPass = await compare(req.body.password, user[0].password);
 
             if (checkPass) {
-                console.log("Password matched")
               let _token;
               const generateToken = () => {
                 return jwt.sign({ username: user[0].username }, "2204", {
@@ -55,8 +54,11 @@ export default async (req, res) => {
               errors.password = "Password doesn't matched";
               return res.status(400).json({ errors });
             }
+          }}
+          else{
+            return res.status(204).send()
           }
-        });
+        })
       }
       break;
     default:

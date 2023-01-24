@@ -10,6 +10,9 @@ export default {
     GetByUsername:(username, callback) => {
         pool.query("SELECT * FROM user WHERE username = ?", [username], callback);
     },
+    GetByToken:(token, callback) => {
+        pool.query("SELECT * FROM user WHERE token = ?", [token], callback);
+    },
     RegisterUser:(user, callback) => {
         pool.query("INSERT INTO user SET ?", user, callback);
     },
