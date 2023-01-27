@@ -12,7 +12,6 @@ export const AuthContext = createContext({
 });
 
 export const isTokenValid = (token) => {
-    console.log("token>>",token);
     if (jwtDecode(token).exp < Date.now() / 1000) {
         return false;
     } else {

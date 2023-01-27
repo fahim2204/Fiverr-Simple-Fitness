@@ -14,8 +14,6 @@ import { RiDeviceFill } from "react-icons/ri";
 import { AiTwotoneDelete } from "react-icons/ai";
 import { Button, Modal, Label, TextInput, Checkbox } from "flowbite-react";
 
-
-
 export default function Home() {
   const router = useRouter();
   const { token, setToken } = useContext(AuthContext);
@@ -27,9 +25,9 @@ export default function Home() {
     // console.log("Check Toekn>>", isTokenValid(token));
     console.log("Index Token>>",token);
     if (!token) {
-      router.push("login")
+      router.push("login");
     }
-  }, [])
+  }, []);
 
   return (
     <>
@@ -49,7 +47,9 @@ export default function Home() {
               <div className="flex flex-col shadow rounded-xl p-6">
                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
                   <div
-                    onClick={() => { setIsAddDeviceModalOpen(true) }}
+                    onClick={() => {
+                      setIsAddDeviceModalOpen(true);
+                    }}
                     className="bg-sf-green-600 rounded-xl shadow h-32 flex-col flex items-center justify-center cursor-pointer group hover:bg-sf-green-500 hover:shadow-2xl transition-all duration-300"
                   >
                     <BsFillPlusCircleFill className="text-sf-green-200 text-3xl group-hover:text-white transition-all duration-300" />
@@ -62,7 +62,9 @@ export default function Home() {
                       show={isAddDeviceModalOpen}
                       size="md"
                       popup={true}
-                      onClose={() => { setIsAddDeviceModalOpen(false) }}
+                      onClose={() => {
+                        setIsAddDeviceModalOpen(false);
+                      }}
                     >
                       <Modal.Header />
                       <Modal.Body>
@@ -72,36 +74,20 @@ export default function Home() {
                           </h3>
                           <div>
                             <div className="mb-2 block">
-                              <Label
-                                htmlFor="email"
-                                value="Your email"
-                              />
+                              <Label htmlFor="email" value="Your email" />
                             </div>
-                            <TextInput
-                              id="email"
-                              placeholder="name@company.com"
-                              required={true}
-                            />
+                            <TextInput id="email" placeholder="name@company.com" required={true} />
                           </div>
                           <div>
                             <div className="mb-2 block">
-                              <Label
-                                htmlFor="password"
-                                value="Your password"
-                              />
+                              <Label htmlFor="password" value="Your password" />
                             </div>
-                            <TextInput
-                              id="password"
-                              type="password"
-                              required={true}
-                            />
+                            <TextInput id="password" type="password" required={true} />
                           </div>
                           <div className="flex justify-between">
                             <div className="flex items-center gap-2">
                               <Checkbox id="remember" />
-                              <Label htmlFor="remember">
-                                Remember me
-                              </Label>
+                              <Label htmlFor="remember">Remember me</Label>
                             </div>
                             <a
                               href="/modal"
@@ -111,12 +97,10 @@ export default function Home() {
                             </a>
                           </div>
                           <div className="w-full">
-                            <Button>
-                              Log in to your account
-                            </Button>
+                            <Button>Log in to your account</Button>
                           </div>
                           <div className="text-sm font-medium text-gray-500 dark:text-gray-300">
-                            Not registered?{' '}
+                            Not registered?{" "}
                             <a
                               href="/modal"
                               className="text-blue-700 hover:underline dark:text-blue-500"

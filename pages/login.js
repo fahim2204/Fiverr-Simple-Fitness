@@ -32,9 +32,10 @@ const Login = () => {
     setIsLoginLoading(true)
     axios.post(`api/login`, values).then((x) => {
       setIsLoginLoading(false)
+      toastSuccess('Login Success!!');
       setToken(x.data.token);
       setCookie("token", x.data.token,{maxAge:60*60*2})
-      toastSuccess('Login Success!!');
+      router.push("/")
     }).catch((err) => {
       setIsLoginLoading(false)
       if (err.response?.status === 401) {

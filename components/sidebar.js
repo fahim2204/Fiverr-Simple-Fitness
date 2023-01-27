@@ -3,10 +3,19 @@ import { MdDevicesOther } from "react-icons/md";
 import { VscGraphLine, VscTable } from "react-icons/vsc";
 import { TbLogout } from "react-icons/tb";
 import { useRouter } from "next/router";
+import { useContext } from "react";
+import { getCookie, setCookie, getCookies, deleteCookie } from "cookies-next";
+import { AuthContext, isTokenValid } from "./request";
+
 
 const Sidebar = () => {
+  const { token, setToken } = useContext(AuthContext);
   const router = useRouter();
-  console.log(router.route);
+  const doLogout = () => {
+    deleteCookie('token');
+    setToken(null)
+    router.push("login");
+  };
 
   return (
     <>
@@ -58,12 +67,13 @@ const Sidebar = () => {
             </Link>
           </li>
           <li className="border-t border-sf-green-300 mt-16">
-            <Link href={"/"}>
-              <div className="flex items-center px-3 rounded hover:text-white py-2 hover:bg-sf-green-400 transition-all duration-300">
-                <TbLogout className="mr-3 text-lg" />
-                <span className="font-semibold">Logout</span>
-              </div>
-            </Link>
+            <div
+              onClick={doLogout}
+              className="flex items-center px-3 rounded cursor-pointer hover:text-white py-2 hover:bg-sf-green-400 transition-all duration-300"
+            >
+              <TbLogout className="mr-3 text-lg" />
+              <span className="font-semibold">Logout</span>
+            </div>
           </li>
         </ul>
       </div>
