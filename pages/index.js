@@ -13,21 +13,32 @@ import { BsFillPlusCircleFill } from "react-icons/bs";
 import { RiDeviceFill } from "react-icons/ri";
 import { AiTwotoneDelete } from "react-icons/ai";
 import { Button, Modal, Label, TextInput, Checkbox } from "flowbite-react";
+import PuffLoader from "react-spinners/PuffLoader";
 
 export default function Home() {
   const router = useRouter();
   const { token, setToken } = useContext(AuthContext);
+  const [checkingAuth, setCheckingAuth] = useState(true);
   const [isAddDeviceModalOpen, setIsAddDeviceModalOpen] = useState(false);
 
   const [data, setData] = useState(null);
 
   useEffect(() => {
     // console.log("Check Toekn>>", isTokenValid(token));
-    console.log("Index Token>>",token);
+    console.log("Index Token>>", token);
     if (!token) {
       router.push("login");
+    } else {
+      setCheckingAuth(false);
     }
   }, []);
+  if (checkingAuth) {
+    return (
+      <div className="w-screen h-screen flex justify-center items-center">
+        <PuffLoader color="#36d7b7" />
+      </div>
+    );
+  }
 
   return (
     <>
