@@ -11,12 +11,12 @@ export default async (req, res) => {
       // Server Side Validation Of Data
       const errors = registerValidate(req.body);
       if (Object.keys(errors).length !== 0) {
-        return res.status(400).json({ errors });
+        return res.status(422).json({ errors });
       } else {
         User.GetByUsername(req.body.username, async (err, data) => {
           if (data.length !== 0) {
             errors.username = "Username already exists";
-            return res.status(400).json({ errors });
+            return res.status(422).json({ errors });
           } else {
             //Hashing Password
             req.body.password = await hash(req.body.password, 12);

@@ -6,9 +6,12 @@ import axios from "axios";
 import { useRouter } from "next/router";
 import { useFormik } from "formik";
 import { registerValidate } from "../lib/validate";
+import { AuthContext, toastError,toastSuccess } from "../components/request";
+
 
 const Register = () => {
   const router = useRouter();
+  const [isRegisterLoading, setIsRegisterLoading] = useState(false)
   const [serverError, setServerError] = useState(null);
 
   const formik = useFormik({
@@ -24,18 +27,22 @@ const Register = () => {
   });
 
   async function onSubmit(values) {
+    setServerError(null);
+    setIsRegisterLoading(true);
     axios
-      .post(`/api/user`, values)
+      .post(`api/register`, values)
       .then((x) => {
-        setServerError([]);
-        notify("Registration success!!");
-        router.push("/login");
+        setIsRegisterLoading(false);
+        toastSuccess("Registration Success!!");
+        router.push("login");
       })
-      .catch((e) => {
-        if (e.response.data.errors) {
-          setServerError(e.response.data.errors);
+      .catch((err) => {
+        setIsRegisterLoading(false);
+          if (err.response?.status === 422) {
+            setServerError(err.response.data.errors);
+            console.log(err.response.data);
         } else {
-          console.log("Error>> ", e);
+          toastError("Something went wrong!!");
         }
       });
   }
@@ -172,13 +179,13 @@ const Register = () => {
                   </div>
                 </div>
                 <div className="flex flex-col space-y-1">
-                  <ul className="list-disc m-0 flex flex-col ml-6">
+                  <ul className="list-none m-0 flex flex-col items-center">
                     {serverError &&
-                      serverError.map((err) => {
+                     Object.values(serverError).map((err) => {
                         return (
                           <>
                             <li className="text-rose-600 leading-5 text-sm">
-                              {err.instancePath.replace("/", "")} {err.message}
+                              {err}
                             </li>
                           </>
                         );
