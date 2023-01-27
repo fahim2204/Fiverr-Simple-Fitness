@@ -4,7 +4,7 @@ export default {
     GetAll:(callback) => {
         pool.query("SELECT * FROM data", callback);
     },
-    GetByMachineId:(id, callback) => {
+    GetByDataId:(id, callback) => {
         pool.query("SELECT * FROM data WHERE id = ?", [id], callback);
     },
     Create:(data, callback) => {

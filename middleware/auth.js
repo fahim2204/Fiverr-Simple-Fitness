@@ -6,7 +6,14 @@ export default {
   validateToken: (req, res, next) => {
     // console.log("first")
     // return res.status(404).send();
-    const reqToken = req.headers.token;
+
+    //* Recieving Token from Custom Headers
+    // const reqToken = req.headers.token;
+    
+    //* Recieving Token from Authorization headers
+    const reqToken = req.headers.authorization?.split('Bearer ')[1];
+
+
     if (reqToken) {
       jwt.verify(reqToken, "2204", async (err) => {
         if (err) {

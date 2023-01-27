@@ -25,7 +25,7 @@ export default async (req, res) => {
 
               if (checkPass) {
                 const generateJWT = () => {
-                  return jwt.sign({ username: user[0].username }, "2204", { expiresIn: '15s' });
+                  return jwt.sign({ username: user[0].username }, "2204", { expiresIn: '2h' });
                 }
 
                 if (user[0].token) {
