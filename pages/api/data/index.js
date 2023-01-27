@@ -1,4 +1,4 @@
-import Machine from "../../../model/machine";
+import Data from "../../../model/data";
 import Auth from "../../../middleware/auth";
 
 export default async (req, res) => {
@@ -7,12 +7,12 @@ export default async (req, res) => {
     Auth.validateToken(req, res, () => {
         switch (method) {
             case 'GET':
-                Machine.GetAll((err, data) => {
+                Data.GetAll((err, data) => {
                     err ? res.status(500).send(err) : res.status(200).send(data);
                 });
                 break
             case 'POST':
-                Machine.Create(req.body, (err, data) => {
+                Data.Create(req.body, (err, data) => {
                     err ? res.status(500).send(err) : res.status(201).send(data);
                 });
                 break

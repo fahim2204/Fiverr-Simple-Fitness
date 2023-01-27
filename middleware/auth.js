@@ -12,16 +12,16 @@ export default {
         if (err) {
           return res.status(403).send(err);
         }
-        User.GetByToken(req.body.username, async (err, user) => {
+        User.GetByToken(reqToken, async (err, user) => {
           if (!err) {
             if (user.length === 0) {
               return res.status(401).json({ message: "Provide a valid token" });
             } else {
               req.authUser = user[0];
+              next();
             }
           }
         });
-        next();
       });
     } else {
       res.status(401).send();

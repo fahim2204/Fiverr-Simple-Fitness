@@ -1,18 +1,12 @@
 import User from "../../../model/user";
-import { changeObjToCamel,changeObjToSnake } from "../../../lib/caseChange";
+import { changeObjToCamel, changeObjToSnake } from "../../../lib/caseChange";
 
 
 export default async (req, res) => {
     const { userId } = req.query
     const { method } = req
-    // validateToken(req, res, async () => {
-    //     await User.findOne({username}).select('-password').select('-token').then((x) => { 
-    //         // x.password = undefined;
-    //         return res.status(200).json({ success: true, data: x }) }
-    //     ).catch(e => {
-    //         return res.status(500).json({ success: false, data: e })
-    //     })
-    // })
+
+
     switch (method) {
         case 'GET':
             User.GetByUserId(userId, (err, data) => {
