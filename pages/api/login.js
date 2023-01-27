@@ -18,7 +18,7 @@ export default async (req, res) => {
           if (!err) {
             if (user.length === 0) {
               errors.username = "User not found";
-              return res.status(400).json({ errors });
+              return res.status(401).json({ errors });
             } else {
               //Compare Password
               const checkPass = await compare(req.body.password, user[0].password);
@@ -53,7 +53,7 @@ export default async (req, res) => {
                 });
               } else {
                 errors.password = "Password doesn't matched";
-                return res.status(400).json({ errors });
+                return res.status(401).json({ errors });
               }
             }
           }

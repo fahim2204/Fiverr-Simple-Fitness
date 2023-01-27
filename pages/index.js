@@ -1,11 +1,13 @@
 import Head from "next/head";
 import Link from "next/link";
-import React from "react";
+import React, { useEffect, useContext } from "react";
 import Sidebar from "../components/sidebar";
 import Footer from "../components/footer";
 import { Fragment, useState, useRef } from "react";
 import { Line, Bar } from "react-chartjs-2";
 import { Chart as ChartJS } from "chart.js/auto";
+import { AuthContext, isTokenValid } from "../components/request";
+import { useRouter } from "next/router";
 
 import { BsFillPlusCircleFill } from "react-icons/bs";
 import { RiDeviceFill } from "react-icons/ri";
@@ -15,9 +17,19 @@ import { Button, Modal, Label, TextInput, Checkbox } from "flowbite-react";
 
 
 export default function Home() {
+  const router = useRouter();
+  const { token, setToken } = useContext(AuthContext);
   const [isAddDeviceModalOpen, setIsAddDeviceModalOpen] = useState(false);
 
   const [data, setData] = useState(null);
+
+  useEffect(() => {
+    // console.log("Check Toekn>>", isTokenValid(token));
+    console.log("Index Token>>",token);
+    if (!token) {
+      router.push("login")
+    }
+  }, [])
 
   return (
     <>

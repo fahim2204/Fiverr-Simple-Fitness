@@ -2,10 +2,19 @@ import Head from "next/head";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { useFormik } from "formik";
-import { useState } from "react";
+import { ToastContainer } from "react-toastify";
+import PropagateLoader from "react-spinners/PropagateLoader";
+import { useState, useContext, useEffect } from "react";
 import { loginValidate } from "../lib/validate";
+import axios from "axios";
+import { getCookie, setCookie, getCookies  } from 'cookies-next';
+import { AuthContext, toastError,toastSuccess } from "../components/request";
+
 
 const Login = () => {
+  const { token, setToken } = useContext(AuthContext);
+  const [isLoginLoading, setIsLoginLoading] = useState(false)
+
   const router = useRouter();
   const [serverError, setServerError] = useState(null);
 
@@ -20,6 +29,21 @@ const Login = () => {
 
   async function onSubmit(values) {
     setServerError(null);
+    setIsLoginLoading(true)
+    axios.post(`api/login`, values).then((x) => {
+      setIsLoginLoading(false)
+      setToken(x.data.token);
+      setCookie("token", x.data.token,{maxAge:60*60*2})
+      toastSuccess('Login Success!!');
+    }).catch((err) => {
+      setIsLoginLoading(false)
+      if (err.response?.status === 401) {
+        setServerError('Username or password incorrect!!');
+      }
+      else {
+        toastError('Something went wrong!!');
+      }
+    })
   }
 
   return (
@@ -28,6 +52,7 @@ const Login = () => {
         <title>LogByte - Login</title>
       </Head>
       <main>
+        <ToastContainer />
         <div className="flex items-center min-h-screen bg-gray-100 justify-center">
           <div className="overflow-hidden rounded-lg shadow-lg sm:max-w-sm md:mx-auto w-full">
             <div className="p-6 bg-white md:flex-1">
@@ -52,11 +77,10 @@ const Login = () => {
                     type="text"
                     id="username"
                     name="username"
-                    className={`px-3 py-1 transition duration-300 border ${
-                      formik.errors.username && formik.touched.username
-                        ? "border-rose-600"
-                        : "border-gray-300"
-                    } rounded focus:border-transparent focus:outline-none focus:ring-4 focus:ring-blue-200`}
+                    className={`px-3 py-1 transition duration-300 border ${formik.errors.username && formik.touched.username
+                      ? "border-rose-600"
+                      : "border-gray-300"
+                      } rounded focus:border-transparent focus:outline-none focus:ring-4 focus:ring-blue-200`}
                     {...formik.getFieldProps("username")}
                   />
                   <div className="text-rose-600 text-xs mt-1">
@@ -75,11 +99,10 @@ const Login = () => {
                     type="password"
                     id="password"
                     name="password"
-                    className={`px-3 py-1 transition duration-300 border ${
-                      formik.errors.password && formik.touched.password
-                        ? "border-rose-600"
-                        : "border-gray-300"
-                    } rounded focus:border-transparent focus:outline-none focus:ring-4 focus:ring-blue-200`}
+                    className={`px-3 py-1 transition duration-300 border ${formik.errors.password && formik.touched.password
+                      ? "border-rose-600"
+                      : "border-gray-300"
+                      } rounded focus:border-transparent focus:outline-none focus:ring-4 focus:ring-blue-200`}
                     {...formik.getFieldProps("password")}
                   />
                   <div className="text-rose-600 text-xs mt-1">
@@ -96,12 +119,13 @@ const Login = () => {
                 )}
 
                 <div className="pt-1">
-                  <button
-                    type="submit"
-                    className="w-full px-4 py-2 text-lg font-semibold text-white transition-colors duration-300 bg-blue-500 rounded-md shadow hover:bg-blue-600 focus:outline-none focus:ring-blue-200 focus:ring-4"
-                  >
-                    Log in
-                  </button>
+                  {isLoginLoading ?
+                    <div className="flex justify-center mb-4"><PropagateLoader color="#1C64F2" /></div> : <button
+                      type="submit"
+                      className="w-full px-4 py-2 text-lg font-semibold text-white transition-colors duration-300 bg-blue-500 rounded-md shadow hover:bg-blue-600 focus:outline-none focus:ring-blue-200 focus:ring-4"
+                    >
+                      Log in
+                    </button>}
                 </div>
                 <h3 className="mb-3 mt-1 text-sm font-semibold text-gray-500 text-center">
                   Not Registered?{" "}
