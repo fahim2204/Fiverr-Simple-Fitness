@@ -1,15 +1,81 @@
 import Head from "next/head";
 import Link from "next/link";
+import React, { useContext, useEffect } from "react";
 import Sidebar from "../components/sidebar";
 import Footer from "../components/footer";
 import { Fragment, useState, useRef } from "react";
 import { Line, Bar, Pie } from "react-chartjs-2";
 import { Chart as ChartJS } from "chart.js/auto";
+import { Select } from "flowbite-react";
+import axios from "axios";
+import { useRouter } from "next/router";
+import { AuthContext, isTokenValid } from "../components/request";
+import { PuffLoader } from "react-spinners";
 
 export default function Home() {
-  let [isAddDeviceOpen, setIsAddDeviceOpen] = useState(false);
+  const router = useRouter();
+  const { token, setToken } = useContext(AuthContext);
+  const [checkingAuth, setCheckingAuth] = useState(true);
+  const [deviceList, setDeviceList] = useState([])
+  const [deviceData, setDeviceData] = useState([])
+  const [selectedMachineId, setSelectedMachineId] = useState(null)
 
-  const [data, setData] = useState(null);
+
+  const fetchDeviceData = () => {
+    axios.get(`api/data/machine/${selectedMachineId}`, {
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    }).then(res => {
+      console.log(res.data);
+      setDeviceData(res.data)
+    }).catch(error => {
+      console.log(error);
+    });
+  }
+  const fetchDeviceList = () => {
+    axios.get('api/assign/own', {
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    }).then(res => {
+      // console.log(res.data);
+      setDeviceList(res.data)
+      setSelectedMachineId(res.data[0].fkMachineId)
+    }).catch(error => {
+      console.log(error);
+    });
+  }
+
+  useEffect(() => {
+    if (!isTokenValid(token)) {
+      router.push("login");
+    } else {
+      fetchDeviceList()
+      setCheckingAuth(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    // console.log("Check Toekn>>", isTokenValid(token));
+    // if (!token) {
+    //   router.push("login");
+    // } else {
+    //   fetchDeviceList()
+    //   setCheckingAuth(false);
+    // }
+    if (selectedMachineId)
+      fetchDeviceData()
+  }, [selectedMachineId]);
+
+  // This is for view a loading screen while it searching for Token
+  if (checkingAuth) {
+    return (
+      <div className="w-screen h-screen flex justify-center items-center">
+        <PuffLoader color="#36d7b7" />
+      </div>
+    );
+  }
 
   return (
     <>
@@ -27,26 +93,32 @@ export default function Home() {
             </div>
             <div className="col-span-7 sm:col-span-8 md:col-span-9">
               <div className="flex flex-col shadow rounded-xl p-6">
+                <div className="mx-auto mb-6">
+                  <Select id="machine" onChange={(e) => setSelectedMachineId(e.target.value)}>
+                    <React.Fragment>
+                      {
+                        deviceList.map((item, index) => {
+                          return (
+                            <option value={item.fkMachineId}>
+                              {item.machineMac}
+                            </option>
+                          )
+                        })
+                      }
+                    </React.Fragment>
+                  </Select>
+                </div>
                 <div className="grid grid-cols-3 gap-6">
                   <div>
                     <Line
-                    height={80}
-                    width={"100%"}
+                      height={80}
+                      width={"100%"}
                       data={{
-                        labels: [
-                          "18:48:01",
-                          "18:48:11",
-                          "18:51:00",
-                          "18:51:10",
-                          "18:51:20",
-                          "18:51:31",
-                          "18:51:41",
-                          "18:51:51",
-                        ],
+                        labels: deviceData.map(reading => `${new Date(reading.createdAt).getMinutes()}:${new Date(reading.createdAt).getSeconds()}`),
                         datasets: [
                           {
                             label: "Temperature",
-                            data: [23.84, 23.81, 23.84, 23.87, 23.87, 23.87, 23.91],
+                            data: deviceData.map(reading => reading.sensorData.temp),
                           },
                         ],
                       }}
@@ -54,23 +126,14 @@ export default function Home() {
                   </div>
                   <div>
                     <Bar
-                     height={80}
-                     width={"100%"}
+                      height={80}
+                      width={"100%"}
                       data={{
-                        labels: [
-                          "18:48:01",
-                          "18:48:11",
-                          "18:51:00",
-                          "18:51:10",
-                          "18:51:20",
-                          "18:51:31",
-                          "18:51:41",
-                          "18:51:51",
-                        ],
+                        labels: deviceData.map(reading => `${new Date(reading.createdAt).getMinutes()}:${new Date(reading.createdAt).getSeconds()}`),
                         datasets: [
                           {
                             label: "Registance",
-                            data: [13.84, 22.81, 10.84, 23.87, 4.87, 23.87, 23.91],
+                            data: deviceData.map(reading => reading.sensorData.resistance),
                           },
                         ],
                       }}
@@ -78,8 +141,8 @@ export default function Home() {
                   </div>
                   <div>
                     <Pie
-                     height={80}
-                     width={"100%"}
+                      height={80}
+                      width={"100%"}
                       data={{
                         labels: ["Jun", "Jul", "Aug", "sep"],
                         datasets: [

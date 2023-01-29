@@ -20,6 +20,11 @@ export default async (req, res) => {
                     return res.status(400).json({ errors });
                 }
                 req.body.status = 1
+                // const today = new Date();
+                // const yesterday = new Date();
+                // yesterday.setDate(today.getDate() - 1);
+                // req.body.createdAt = yesterday;
+                // req.body.updatedAt = yesterday;
                 req.body.createdAt = new Date()
                 req.body.updatedAt = new Date()
                 req.body.sensorData = JSON.stringify(req.body.sensorData)

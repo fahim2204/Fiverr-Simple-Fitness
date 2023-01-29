@@ -78,9 +78,7 @@ export default function Home() {
   }
 
   useEffect(() => {
-    // console.log("Check Toekn>>", isTokenValid(token));
-    console.log("Index Token>>", token);
-    if (!token) {
+    if (!isTokenValid(token)) {
       router.push("login");
     } else {
       fetchDeviceList()
@@ -162,7 +160,7 @@ export default function Home() {
                       <div className="bg-sf-green-600 rounded-xl shadow h-32 flex flex-col group items-center cursor-pointer relative hover:bg-sf-green-500 hover:shadow-2xl transition-all duration-300">
                         <div className="text-xs text-white my-1 flex items-center absolute top-0">
                           <span className="text-sm text-sf-green-200">{item.status === 1 ? "Online" : "Offline"}</span>
-                          <div className={`${item.status === 1 ? 'bg-green-400' : 'bg-red-600'} rounded-full w-2 h-2 ml-1`}></div>
+                          <div className={`${item.status === 1 ? 'bg-green-400' : 'bg-red-600'} rounded-full w-2 h-2 ml-1 animate-pulse`}></div>
                         </div>
                         <div className="my-auto flex flex-col items-center select-none">
                           <RiDeviceFill className="text-sf-green-200 text-3xl group-hover:text-sf-green-50 transition-all duration-300" />
