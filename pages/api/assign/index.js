@@ -1,5 +1,5 @@
 import AssignMachine from "../../../model/assignMachine";
-import Machine from "../../../model/Machine";
+import Machine from "../../../model/machine";
 import Auth from "../../../middleware/auth";
 import { changeObjArrToCamel, changeObjToSnake } from "../../../lib/caseChange";
 import { machineAssignDataValidate } from "../../../lib/validate";

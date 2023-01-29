@@ -1,4 +1,4 @@
-import AssignMachine from "../../../model/AssignMachine";
+import AssignMachine from "../../../model/assignMachine";
 import Auth from "../../../middleware/auth";
 import { changeObjToCamel, changeObjArrToCamel, changeObjToSnake } from "../../../lib/caseChange";
 
