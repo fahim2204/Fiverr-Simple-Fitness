@@ -39,11 +39,5 @@ export const toastError = (msg) => toast.error(msg, {
     theme: "light",
 });
 
-export const LBAxios = axios.create({
-    baseURL: 'http://localhost:3000/api',
-    headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${process.env.TOKEN}`
-    }
-});
+
 

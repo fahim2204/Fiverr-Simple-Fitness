@@ -6,8 +6,11 @@ import Footer from "../components/footer";
 import { Fragment, useState, useRef } from "react";
 import { Line, Bar } from "react-chartjs-2";
 import { Chart as ChartJS } from "chart.js/auto";
-import { AuthContext, isTokenValid } from "../components/request";
+import { ToastContainer } from "react-toastify";
+import { AuthContext, isTokenValid, toastError, toastSuccess } from "../components/request";
 import { useRouter } from "next/router";
+import axios from "axios";
+
 
 import { BsFillPlusCircleFill } from "react-icons/bs";
 import { RiDeviceFill } from "react-icons/ri";
@@ -20,8 +23,59 @@ export default function Home() {
   const { token, setToken } = useContext(AuthContext);
   const [checkingAuth, setCheckingAuth] = useState(true);
   const [isAddDeviceModalOpen, setIsAddDeviceModalOpen] = useState(false);
+  const [deviceList, setDeviceList] = useState([])
 
-  const [data, setData] = useState(null);
+  const machineMacRef = useRef(null)
+
+
+
+  const handleAddDeviceForm = (e) => {
+    e.preventDefault();
+    axios.post('api/assign', { machineMac: machineMacRef.current.value }, {
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    }).then(res => {
+      fetchDeviceList()
+      setIsAddDeviceModalOpen(false);
+      machineMacRef.current.value = ""
+      toastSuccess("Successfully Added!!")
+    }).catch(err => {
+      if (err.response.status === 422) {
+        setIsAddDeviceModalOpen(false);
+        machineMacRef.current.value = ""
+        toastError(err.response.data.errors.machineMac)
+      } else {
+        toastError("Something went wrong!!")
+      }
+    });
+  }
+
+  const handleDeleteDevice = (deviceId) => {
+    axios.delete(`api/assign/${deviceId}`, {
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    }).then(res => {
+      fetchDeviceList()
+      toastSuccess("Removed Successfully!!")
+    }).catch(err => {
+      toastError("Something went wrong!!")
+    });
+  }
+
+  const fetchDeviceList = () => {
+    axios.get('api/assign/own', {
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    }).then(res => {
+      // console.log(res.data);
+      setDeviceList(res.data)
+    }).catch(error => {
+      console.log(error);
+    });
+  }
 
   useEffect(() => {
     // console.log("Check Toekn>>", isTokenValid(token));
@@ -29,9 +83,12 @@ export default function Home() {
     if (!token) {
       router.push("login");
     } else {
+      fetchDeviceList()
       setCheckingAuth(false);
     }
   }, []);
+
+  // This is for view a loading screen while it searching for Token
   if (checkingAuth) {
     return (
       <div className="w-screen h-screen flex justify-center items-center">
@@ -49,6 +106,7 @@ export default function Home() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <main>
+        <ToastContainer />
         <div className="sm:max-w-6xl mx-auto mt-8 px-6">
           <div className="grid grid-cols-12 gap-12 mb-5">
             <div className="col-span-5 sm:col-span-4 md:col-span-3">
@@ -79,66 +137,47 @@ export default function Home() {
                     >
                       <Modal.Header />
                       <Modal.Body>
-                        <div className="space-y-6 px-6 pb-4 sm:pb-6 lg:px-8 xl:pb-8">
-                          <h3 className="text-xl font-medium text-gray-900 dark:text-white">
-                            Sign in to our platform
+                        <form onSubmit={(e) => handleAddDeviceForm(e)} className="space-y-6 px-6 pb-4 sm:pb-6 lg:px-8 xl:pb-8">
+                          <h3 className="text-xl text-center font-medium text-gray-900 dark:text-white">
+                            Add a Device
                           </h3>
                           <div>
                             <div className="mb-2 block">
-                              <Label htmlFor="email" value="Your email" />
+                              <Label htmlFor="machineMac" value="Device MAC" />
                             </div>
-                            <TextInput id="email" placeholder="name@company.com" required={true} />
+                            <TextInput id="machineMac" name="machineMac" ref={machineMacRef} placeholder="LBXXXXX" required={true} />
                           </div>
-                          <div>
-                            <div className="mb-2 block">
-                              <Label htmlFor="password" value="Your password" />
-                            </div>
-                            <TextInput id="password" type="password" required={true} />
+
+
+                          <div className="flex justify-center">
+                            <Button type="submit">Add</Button>
                           </div>
-                          <div className="flex justify-between">
-                            <div className="flex items-center gap-2">
-                              <Checkbox id="remember" />
-                              <Label htmlFor="remember">Remember me</Label>
-                            </div>
-                            <a
-                              href="/modal"
-                              className="text-sm text-blue-700 hover:underline dark:text-blue-500"
-                            >
-                              Lost Password?
-                            </a>
-                          </div>
-                          <div className="w-full">
-                            <Button>Log in to your account</Button>
-                          </div>
-                          <div className="text-sm font-medium text-gray-500 dark:text-gray-300">
-                            Not registered?{" "}
-                            <a
-                              href="/modal"
-                              className="text-blue-700 hover:underline dark:text-blue-500"
-                            >
-                              Create account
-                            </a>
-                          </div>
-                        </div>
+
+                        </form>
                       </Modal.Body>
                     </Modal>
                   </>
-                  <div className="bg-sf-green-600 rounded-xl shadow h-32 flex flex-col group items-center cursor-pointer relative hover:bg-sf-green-500 hover:shadow-2xl transition-all duration-300">
-                    <div className="text-xs text-white my-1 flex items-center absolute top-0">
-                      <span className="text-sm text-sf-green-200">Online</span>
-                      <div className="bg-green-600 rounded-full w-2 h-2 ml-1"></div>
-                    </div>
-                    <div className="my-auto flex flex-col items-center select-none">
-                      <RiDeviceFill className="text-sf-green-200 text-3xl group-hover:text-sf-green-50 transition-all duration-300" />
-                      <span className="text-sf-green-200 text-xs mt-1 line-clamp-1 group-hover:text-sf-green-50 transition-all duration-300">
-                        Device Name
-                      </span>
-                    </div>
-                    <div className="text-xs text-white my-1 group-hover:flex items-center absolute bottom-0 hidden transition-all duration-300">
-                      <AiTwotoneDelete className="text-xl my-1 text-red-700 hover:scale-125 cursor-pointer transition-all duration-300 hover:bg-red-700 hover:text-sf-green-200 rounded-full hover:p-1" />
-                    </div>
-                  </div>
-                  <div className="bg-sf-green-600 rounded-xl shadow h-32 flex flex-col group items-center cursor-pointer relative hover:bg-sf-green-500 hover:shadow-2xl transition-all duration-300">
+                  {deviceList && deviceList.map((item, index) => {
+                    return (
+                      <div className="bg-sf-green-600 rounded-xl shadow h-32 flex flex-col group items-center cursor-pointer relative hover:bg-sf-green-500 hover:shadow-2xl transition-all duration-300">
+                        <div className="text-xs text-white my-1 flex items-center absolute top-0">
+                          <span className="text-sm text-sf-green-200">{item.status === 1 ? "Online" : "Offline"}</span>
+                          <div className={`${item.status === 1 ? 'bg-green-400' : 'bg-red-600'} rounded-full w-2 h-2 ml-1`}></div>
+                        </div>
+                        <div className="my-auto flex flex-col items-center select-none">
+                          <RiDeviceFill className="text-sf-green-200 text-3xl group-hover:text-sf-green-50 transition-all duration-300" />
+                          <span className="text-sf-green-200 text-xs mt-1 line-clamp-1 group-hover:text-sf-green-50 transition-all duration-300">
+                            {item.machineMac}
+                          </span>
+                        </div>
+                        <div className="text-xs text-white my-1 group-hover:flex items-center absolute bottom-0 hidden transition-all duration-300">
+                          <AiTwotoneDelete onClick={() => handleDeleteDevice(item.fkMachineId)} className="text-xl my-1 text-red-700 hover:scale-125 cursor-pointer transition-all duration-300 hover:bg-red-700 hover:text-sf-green-200 rounded-full hover:p-1" />
+                        </div>
+                      </div>
+                    )
+                  })}
+
+                  {/* <div className="bg-sf-green-600 rounded-xl shadow h-32 flex flex-col group items-center cursor-pointer relative hover:bg-sf-green-500 hover:shadow-2xl transition-all duration-300">
                     <div className="text-xs text-white my-1 flex items-center absolute top-0">
                       <span className="text-sm text-sf-green-200">Offline</span>
                       <div className="bg-red-700 rounded-full w-2 h-2 ml-1"></div>
@@ -152,7 +191,7 @@ export default function Home() {
                     <div className="text-xs text-white my-1 group-hover:flex items-center absolute bottom-0 hidden transition-all duration-300">
                       <AiTwotoneDelete className="text-xl my-1 text-red-700 hover:scale-125 cursor-pointer transition-all duration-300 hover:bg-red-700 hover:text-sf-green-200 rounded-full hover:p-1" />
                     </div>
-                  </div>
+                  </div> */}
                 </div>
               </div>
             </div>

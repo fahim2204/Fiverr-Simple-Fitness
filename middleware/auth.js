@@ -17,7 +17,7 @@ export default {
     if (reqToken) {
       jwt.verify(reqToken, "2204", async (err) => {
         if (err) {
-          return res.status(403).send(err);
+          return res.status(401).send(err);
         }
         User.GetByToken(reqToken, async (err, user) => {
           if (!err) {

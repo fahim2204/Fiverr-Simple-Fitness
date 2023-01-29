@@ -7,6 +7,9 @@ export default {
     GetByMachineId:(id, callback) => {
         pool.query("SELECT * FROM machine WHERE machine_id = ?", [id], callback);
     },
+    GetByMachineMac:(mac, callback) => {
+        pool.query("SELECT * FROM machine WHERE machine_mac = ?", [mac], callback);
+    },
     Create:(machine, callback) => {
         pool.query("INSERT INTO machine SET ?", machine, callback);
     },
