@@ -33,8 +33,8 @@ const Sidebar = () => {
           <li>
             <Link href={"/"}>
               <div
-                className={`flex items-center px-3 rounded py-2 hover:bg-sf-green-300 transition-all duration-300 ${
-                  router.route === "/" ? "bg-sf-green-600 text-white" : ""
+                className={`flex items-center px-3 rounded py-2 hover:bg-lb-green-300 transition-all duration-300 ${
+                  router.route === "/" ? "bg-lb-green-600 text-white" : ""
                 }`}
               >
                 <MdDevicesOther className="mr-3 text-lg" />
@@ -45,8 +45,8 @@ const Sidebar = () => {
           <li>
             <Link href={"/graph"}>
               <div
-                className={`flex items-center px-3 rounded py-2 hover:bg-sf-green-300 transition-all duration-300 ${
-                  router.route === "/graph" ? "bg-sf-green-600 text-white" : ""
+                className={`flex items-center px-3 rounded py-2 hover:bg-lb-green-300 transition-all duration-300 ${
+                  router.route === "/graph" ? "bg-lb-green-600 text-white" : ""
                 }`}
               >
                 <VscGraphLine className="mr-3 text-lg" />
@@ -57,8 +57,8 @@ const Sidebar = () => {
           <li>
             <Link href={"/table"}>
               <div
-                className={`flex items-center px-3 rounded py-2 hover:bg-sf-green-300 transition-all duration-300 ${
-                  router.route === "/table" ? "bg-sf-green-600 text-white" : ""
+                className={`flex items-center px-3 rounded py-2 hover:bg-lb-green-300 transition-all duration-300 ${
+                  router.route === "/table" ? "bg-lb-green-600 text-white" : ""
                 }`}
               >
                 <VscTable className="mr-3 text-lg" />
@@ -66,10 +66,10 @@ const Sidebar = () => {
               </div>
             </Link>
           </li>
-          <li className="border-t border-sf-green-300 mt-16">
+          <li className="border-t border-lb-green-300 mt-16">
             <div
               onClick={doLogout}
-              className="flex items-center px-3 rounded cursor-pointer hover:text-white py-2 hover:bg-sf-green-400 transition-all duration-300"
+              className="flex items-center px-3 rounded cursor-pointer hover:text-white py-2 hover:bg-lb-green-400 transition-all duration-300"
             >
               <TbLogout className="mr-3 text-lg" />
               <span className="font-semibold">Logout</span>

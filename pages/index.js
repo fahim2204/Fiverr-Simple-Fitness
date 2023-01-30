@@ -117,10 +117,10 @@ export default function Home() {
                     onClick={() => {
                       setIsAddDeviceModalOpen(true);
                     }}
-                    className="bg-sf-green-600 rounded-xl shadow h-32 flex-col flex items-center justify-center cursor-pointer group hover:bg-sf-green-500 hover:shadow-2xl transition-all duration-300"
+                    className="bg-lb-green-600 rounded-xl shadow h-32 flex-col flex items-center justify-center cursor-pointer group hover:bg-lb-green-500 hover:shadow-2xl transition-all duration-300"
                   >
-                    <BsFillPlusCircleFill className="text-sf-green-200 text-3xl group-hover:text-white transition-all duration-300" />
-                    <span className="text-sf-green-200 text-xs mt-1 group-hover:text-white transition-all duration-300">
+                    <BsFillPlusCircleFill className="text-lb-green-200 text-3xl group-hover:text-white transition-all duration-300" />
+                    <span className="text-lb-green-200 text-xs mt-1 group-hover:text-white transition-all duration-300">
                       Add Device
                     </span>
                   </div>
@@ -157,37 +157,37 @@ export default function Home() {
                   </>
                   {deviceList && deviceList.map((item, index) => {
                     return (
-                      <div className="bg-sf-green-600 rounded-xl shadow h-32 flex flex-col group items-center cursor-pointer relative hover:bg-sf-green-500 hover:shadow-2xl transition-all duration-300">
+                      <div key={index} className="bg-lb-green-600 rounded-xl shadow h-32 flex flex-col group items-center cursor-pointer relative hover:bg-lb-green-500 hover:shadow-2xl transition-all duration-300">
                         <div className="text-xs text-white my-1 flex items-center absolute top-0">
-                          <span className="text-sm text-sf-green-200">{item.status === 1 ? "Online" : "Offline"}</span>
+                          <span className="text-sm text-lb-green-200">{item.status === 1 ? "Online" : "Offline"}</span>
                           <div className={`${item.status === 1 ? 'bg-green-400' : 'bg-red-600'} rounded-full w-2 h-2 ml-1 animate-pulse`}></div>
                         </div>
                         <div className="my-auto flex flex-col items-center select-none">
-                          <RiDeviceFill className="text-sf-green-200 text-3xl group-hover:text-sf-green-50 transition-all duration-300" />
-                          <span className="text-sf-green-200 text-xs mt-1 line-clamp-1 group-hover:text-sf-green-50 transition-all duration-300">
+                          <RiDeviceFill className="text-lb-green-200 text-3xl group-hover:text-lb-green-50 transition-all duration-300" />
+                          <span className="text-lb-green-200 text-xs mt-1 line-clamp-1 group-hover:text-lb-green-50 transition-all duration-300">
                             {item.machineMac}
                           </span>
                         </div>
                         <div className="text-xs text-white my-1 group-hover:flex items-center absolute bottom-0 hidden transition-all duration-300">
-                          <AiTwotoneDelete onClick={() => handleDeleteDevice(item.fkMachineId)} className="text-xl my-1 text-red-700 hover:scale-125 cursor-pointer transition-all duration-300 hover:bg-red-700 hover:text-sf-green-200 rounded-full hover:p-1" />
+                          <AiTwotoneDelete onClick={() => handleDeleteDevice(item.fkMachineId)} className="text-xl my-1 text-red-700 hover:scale-125 cursor-pointer transition-all duration-300 hover:bg-red-700 hover:text-lb-green-200 rounded-full hover:p-1" />
                         </div>
                       </div>
                     )
                   })}
 
-                  {/* <div className="bg-sf-green-600 rounded-xl shadow h-32 flex flex-col group items-center cursor-pointer relative hover:bg-sf-green-500 hover:shadow-2xl transition-all duration-300">
+                  {/* <div className="bg-lb-green-600 rounded-xl shadow h-32 flex flex-col group items-center cursor-pointer relative hover:bg-lb-green-500 hover:shadow-2xl transition-all duration-300">
                     <div className="text-xs text-white my-1 flex items-center absolute top-0">
-                      <span className="text-sm text-sf-green-200">Offline</span>
+                      <span className="text-sm text-lb-green-200">Offline</span>
                       <div className="bg-red-700 rounded-full w-2 h-2 ml-1"></div>
                     </div>
                     <div className="my-auto flex flex-col items-center select-none">
-                      <RiDeviceFill className="text-sf-green-200 text-3xl group-hover:text-sf-green-50 transition-all duration-300" />
-                      <span className="text-sf-green-200 text-xs mt-1 line-clamp-1 group-hover:text-sf-green-50 transition-all duration-300">
+                      <RiDeviceFill className="text-lb-green-200 text-3xl group-hover:text-lb-green-50 transition-all duration-300" />
+                      <span className="text-lb-green-200 text-xs mt-1 line-clamp-1 group-hover:text-lb-green-50 transition-all duration-300">
                         Device Name
                       </span>
                     </div>
                     <div className="text-xs text-white my-1 group-hover:flex items-center absolute bottom-0 hidden transition-all duration-300">
-                      <AiTwotoneDelete className="text-xl my-1 text-red-700 hover:scale-125 cursor-pointer transition-all duration-300 hover:bg-red-700 hover:text-sf-green-200 rounded-full hover:p-1" />
+                      <AiTwotoneDelete className="text-xl my-1 text-red-700 hover:scale-125 cursor-pointer transition-all duration-300 hover:bg-red-700 hover:text-lb-green-200 rounded-full hover:p-1" />
                     </div>
                   </div> */}
                 </div>

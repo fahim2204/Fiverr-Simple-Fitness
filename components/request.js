@@ -12,8 +12,6 @@ export const AuthContext = createContext({
 });
 
 export const isTokenValid = (token) => {
-    console.log('token>> ',token);
-    
     if (token === undefined || token === null)
         return false;
 

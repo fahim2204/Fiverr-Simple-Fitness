@@ -27,7 +27,6 @@ export default function Home() {
         'Authorization': `Bearer ${token}`
       }
     }).then(res => {
-      console.log(res.data);
       setDeviceData(res.data)
     }).catch(error => {
       console.log(error);
@@ -57,13 +56,6 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
-    // console.log("Check Toekn>>", isTokenValid(token));
-    // if (!token) {
-    //   router.push("login");
-    // } else {
-    //   fetchDeviceList()
-    //   setCheckingAuth(false);
-    // }
     if (selectedMachineId)
       fetchDeviceData()
   }, [selectedMachineId]);
@@ -99,7 +91,7 @@ export default function Home() {
                       {
                         deviceList.map((item, index) => {
                           return (
-                            <option value={item.fkMachineId}>
+                            <option key={index} value={item.fkMachineId}>
                               {item.machineMac}
                             </option>
                           )
@@ -107,8 +99,21 @@ export default function Home() {
                       }
                     </React.Fragment>
                   </Select>
+                  <Select id="machine" onChange={(e) => setSelectedMachineId(e.target.value)}>
+                    <React.Fragment>
+                      {
+                        [...new Set(deviceData.map(item => Object.keys(item.sensorData)).flat())].map((item, index) => {
+                          return (
+                            <option key={index} value={item}>
+                              {item}
+                            </option>
+                          )
+                        })
+                      }
+                    </React.Fragment>
+                  </Select>
                 </div>
-                <div className="grid grid-cols-3 gap-6">
+                <div className="grid grid-cols-2 gap-6">
                   <div>
                     <Line
                       height={80}
