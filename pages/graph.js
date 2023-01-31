@@ -19,15 +19,19 @@ export default function Home() {
   const [deviceList, setDeviceList] = useState([]);
   const [deviceData, setDeviceData] = useState([]);
   const [selectedMachineId, setSelectedMachineId] = useState(null);
+  const [from, setFrom] = useState(new Date(Date.now() - 864e5 * 3))
+  const [to, setTo] = useState(new Date())
 
   const fetchDeviceData = () => {
     axios
-      .get(`api/data/machine/${selectedMachineId}`, {
+      .post(`api/data/machine/${selectedMachineId}/filter`, { from, to }, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       })
       .then((res) => {
+        console.log('Object.keys(res.data)>> ', res.data.temp.label);
+
         setDeviceData(res.data);
       })
       .catch((error) => {
@@ -90,29 +94,16 @@ export default function Home() {
             <div className="col-span-7 sm:col-span-8 md:col-span-9">
               <div className="flex flex-col shadow rounded-xl p-6">
                 <div className="mx-auto mb-6">
+                  {/* Select Device */}
                   <select
                     id="machine"
                     onChange={(e) => setSelectedMachineId(e.target.value)}
-                    class="bg-gray-50 border border-gray-300 text-gray-900 mb-6 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                    className="bg-gray-50 border border-gray-300 text-gray-900 mb-6 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                   >
                     {deviceList.map((item, index) => {
                       return (
                         <option key={index} value={item.fkMachineId}>
                           {item.machineMac}
-                        </option>
-                      );
-                    })}
-                  </select>
-                  <select
-                    id="data"
-                    class="bg-gray-50 border border-gray-300 text-gray-900 mb-6 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                  >
-                    {[
-                      ...new Set(deviceData.map((item) => Object.keys(item.sensorData)).flat()),
-                    ].map((item, index) => {
-                      return (
-                        <option key={index} value={item}>
-                          {item.toLocaleLowerCase()}
                         </option>
                       );
                     })}
@@ -127,18 +118,8 @@ export default function Home() {
                       height={80}
                       width={"100%"}
                       data={{
-                        labels: deviceData.map(
-                          (reading) =>
-                            `${new Date(reading.createdAt).getMinutes()}:${new Date(
-                              reading.createdAt
-                            ).getSeconds()}`
-                        ),
-                        datasets: [
-                          {
-                            label: "Temperature",
-                            data: deviceData.map((reading) => reading.sensorData.temp),
-                          },
-                        ],
+                        labels: deviceData?.temp?.label.map((item) => item.toLocaleString('en-US', {hour: 'numeric', minute: 'numeric', hour12: true})),
+                        datasets: Object.entries(deviceData).map(([label, { val }]) => ({ label: label.charAt(0).toUpperCase() + label.slice(1), data: val })),
                       }}
                     />
                   </div>
@@ -147,45 +128,8 @@ export default function Home() {
                       height={80}
                       width={"100%"}
                       data={{
-                        labels: deviceData.map(
-                          (reading) =>
-                            `${new Date(reading.createdAt).getMinutes()}:${new Date(
-                              reading.createdAt
-                            ).getSeconds()}`
-                        ),
-                        datasets: [
-                          {
-                            label: "Registance",
-                            data: deviceData.map((reading) => reading.sensorData.resistance),
-                          },
-                        ],
-                      }}
-                    />
-                  </div>
-                  <div>
-                    <Pie
-                      height={80}
-                      width={"100%"}
-                      data={{
-                        labels: ["Jun", "Jul", "Aug", "sep"],
-                        datasets: [
-                          {
-                            label: "a",
-                            data: [5, 1, 7, 1],
-                          },
-                          {
-                            label: "b",
-                            data: [3, 2, 1, 9],
-                          },
-                          {
-                            label: "c",
-                            data: [6, 2, 1, 4],
-                          },
-                          {
-                            label: "d",
-                            data: [8, 2, 1, 3],
-                          },
-                        ],
+                        labels: deviceData?.resistance?.label.map((item) => `${new Date(item).getHours()}:${new Date(item).getMinutes()}`),
+                        datasets: Object.entries(deviceData).map(([label, { val }]) => ({ label: label.charAt(0).toUpperCase() + label.slice(1), data: val })),
                       }}
                     />
                   </div>

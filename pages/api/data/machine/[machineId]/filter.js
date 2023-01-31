@@ -8,9 +8,27 @@ export default async (req, res) => {
 
   Auth.validateToken(req, res, () => {
     switch (method) {
-      case "GET":
-        Data.GetByDataByMachineId(machineId, (err, data) => {
-          err ? res.status(500).send(err) : res.status(200).send(changeObjArrToCamel(data));
+      case "POST":
+        function makeDataLableValStructure(data) {
+          let result = {};
+
+          data.forEach(item => {
+            Object.keys(item.sensorData).forEach(key => {
+              if (!result[key]) {
+                result[key] = {
+                  label: [],
+                  val: []
+                };
+              }
+              result[key].label.push(item.createdAt);
+              result[key].val.push(item.sensorData[key]);
+            });
+          });
+
+          return result;
+        }
+        Data.GetByDataByMachineIdFromTo(machineId, req.body.from, req.body.to, (err, data) => {
+          err ? res.status(500).send(err) : res.status(200).send(makeDataLableValStructure(changeObjArrToCamel(data)));
         });
         break;
       default:
@@ -19,3 +37,4 @@ export default async (req, res) => {
     }
   });
 };
+
