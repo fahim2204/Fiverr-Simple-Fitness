@@ -2,7 +2,6 @@ import Head from "next/head";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { useFormik } from "formik";
-import { ToastContainer } from "react-toastify";
 import PropagateLoader from "react-spinners/PropagateLoader";
 import { useState, useContext, useEffect } from "react";
 import { loginValidate } from "../lib/validate";
@@ -53,7 +52,6 @@ const Login = () => {
         <title>LogByte - Login</title>
       </Head>
       <main>
-        <ToastContainer />
         <div className="flex items-center min-h-screen bg-gray-100 justify-center">
           <div className="overflow-hidden rounded-lg shadow-lg sm:max-w-sm md:mx-auto w-full">
             <div className="p-6 bg-white md:flex-1">

@@ -118,7 +118,11 @@ export default function Home() {
                       height={80}
                       width={"100%"}
                       data={{
-                        labels: deviceData?.temp?.label.map((item) => item.toLocaleString('en-US', {hour: 'numeric', minute: 'numeric', hour12: true})),
+                        labels: [new Date(from),
+                          new Date(from).toLocaleString('en-US', {hour: 'numeric', minute: 'numeric', hour12: true}),
+                          new Date(from+864e5 * 3).toLocaleString('en-US', {hour: 'numeric', minute: 'numeric', hour12: true}),
+                          new Date(from).toLocaleString('en-US', {hour: 'numeric', minute: 'numeric', hour12: true}),
+                        ],
                         datasets: Object.entries(deviceData).map(([label, { val }]) => ({ label: label.charAt(0).toUpperCase() + label.slice(1), data: val })),
                       }}
                     />

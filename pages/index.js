@@ -6,7 +6,6 @@ import Footer from "../components/footer";
 import { Fragment, useState, useRef } from "react";
 import { Line, Bar } from "react-chartjs-2";
 import { Chart as ChartJS } from "chart.js/auto";
-import { ToastContainer } from "react-toastify";
 import { AuthContext, isTokenValid, toastError, toastSuccess } from "../components/request";
 import { useRouter } from "next/router";
 import axios from "axios";
@@ -104,7 +103,6 @@ export default function Home() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <main>
-        <ToastContainer />
         <div className="sm:max-w-6xl mx-auto mt-8 px-6">
           <div className="grid grid-cols-12 gap-12 mb-5">
             <div className="col-span-5 sm:col-span-4 md:col-span-3">
