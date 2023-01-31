@@ -16,48 +16,52 @@ export default function Home() {
   const router = useRouter();
   const { token, setToken } = useContext(AuthContext);
   const [checkingAuth, setCheckingAuth] = useState(true);
-  const [deviceList, setDeviceList] = useState([])
-  const [deviceData, setDeviceData] = useState([])
-  const [selectedMachineId, setSelectedMachineId] = useState(null)
-
+  const [deviceList, setDeviceList] = useState([]);
+  const [deviceData, setDeviceData] = useState([]);
+  const [selectedMachineId, setSelectedMachineId] = useState(null);
 
   const fetchDeviceData = () => {
-    axios.get(`api/data/machine/${selectedMachineId}`, {
-      headers: {
-        'Authorization': `Bearer ${token}`
-      }
-    }).then(res => {
-      setDeviceData(res.data)
-    }).catch(error => {
-      console.log(error);
-    });
-  }
+    axios
+      .get(`api/data/machine/${selectedMachineId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+      .then((res) => {
+        setDeviceData(res.data);
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  };
   const fetchDeviceList = () => {
-    axios.get('api/assign/own', {
-      headers: {
-        'Authorization': `Bearer ${token}`
-      }
-    }).then(res => {
-      // console.log(res.data);
-      setDeviceList(res.data)
-      setSelectedMachineId(res.data[0].fkMachineId)
-    }).catch(error => {
-      console.log(error);
-    });
-  }
+    axios
+      .get("api/assign/own", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+      .then((res) => {
+        // console.log(res.data);
+        setDeviceList(res.data);
+        setSelectedMachineId(res.data[0].fkMachineId);
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  };
 
   useEffect(() => {
     if (!isTokenValid(token)) {
       router.push("login");
     } else {
-      fetchDeviceList()
+      fetchDeviceList();
       setCheckingAuth(false);
     }
   }, []);
 
   useEffect(() => {
-    if (selectedMachineId)
-      fetchDeviceData()
+    if (selectedMachineId) fetchDeviceData();
   }, [selectedMachineId]);
 
   // This is for view a loading screen while it searching for Token
@@ -86,32 +90,36 @@ export default function Home() {
             <div className="col-span-7 sm:col-span-8 md:col-span-9">
               <div className="flex flex-col shadow rounded-xl p-6">
                 <div className="mx-auto mb-6">
-                  <Select id="machine" onChange={(e) => setSelectedMachineId(e.target.value)}>
-                    <React.Fragment>
-                      {
-                        deviceList.map((item, index) => {
-                          return (
-                            <option key={index} value={item.fkMachineId}>
-                              {item.machineMac}
-                            </option>
-                          )
-                        })
-                      }
-                    </React.Fragment>
-                  </Select>
-                  <Select id="machine" onChange={(e) => setSelectedMachineId(e.target.value)}>
-                    <React.Fragment>
-                      {
-                        [...new Set(deviceData.map(item => Object.keys(item.sensorData)).flat())].map((item, index) => {
-                          return (
-                            <option key={index} value={item}>
-                              {item}
-                            </option>
-                          )
-                        })
-                      }
-                    </React.Fragment>
-                  </Select>
+                  <select
+                    id="machine"
+                    onChange={(e) => setSelectedMachineId(e.target.value)}
+                    class="bg-gray-50 border border-gray-300 text-gray-900 mb-6 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                  >
+                    {deviceList.map((item, index) => {
+                      return (
+                        <option key={index} value={item.fkMachineId}>
+                          {item.machineMac}
+                        </option>
+                      );
+                    })}
+                  </select>
+                  <select
+                    id="data"
+                    class="bg-gray-50 border border-gray-300 text-gray-900 mb-6 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                  >
+                    {[
+                      ...new Set(deviceData.map((item) => Object.keys(item.sensorData)).flat()),
+                    ].map((item, index) => {
+                      return (
+                        <option key={index} value={item}>
+                          {item.toLocaleLowerCase()}
+                        </option>
+                      );
+                    })}
+                  </select>
+
+                  <input type="datetime-local" name="from" id="from" />
+                  <input type="datetime-local" name="to" id="to" />
                 </div>
                 <div className="grid grid-cols-2 gap-6">
                   <div>
@@ -119,11 +127,16 @@ export default function Home() {
                       height={80}
                       width={"100%"}
                       data={{
-                        labels: deviceData.map(reading => `${new Date(reading.createdAt).getMinutes()}:${new Date(reading.createdAt).getSeconds()}`),
+                        labels: deviceData.map(
+                          (reading) =>
+                            `${new Date(reading.createdAt).getMinutes()}:${new Date(
+                              reading.createdAt
+                            ).getSeconds()}`
+                        ),
                         datasets: [
                           {
                             label: "Temperature",
-                            data: deviceData.map(reading => reading.sensorData.temp),
+                            data: deviceData.map((reading) => reading.sensorData.temp),
                           },
                         ],
                       }}
@@ -134,11 +147,16 @@ export default function Home() {
                       height={80}
                       width={"100%"}
                       data={{
-                        labels: deviceData.map(reading => `${new Date(reading.createdAt).getMinutes()}:${new Date(reading.createdAt).getSeconds()}`),
+                        labels: deviceData.map(
+                          (reading) =>
+                            `${new Date(reading.createdAt).getMinutes()}:${new Date(
+                              reading.createdAt
+                            ).getSeconds()}`
+                        ),
                         datasets: [
                           {
                             label: "Registance",
-                            data: deviceData.map(reading => reading.sensorData.resistance),
+                            data: deviceData.map((reading) => reading.sensorData.resistance),
                           },
                         ],
                       }}

@@ -1,6 +1,6 @@
-import Data from "../../../../model/data";
-import Auth from "../../../../middleware/auth";
-import { changeObjArrToCamel, changeObjToSnake } from "../../../../lib/caseChange";
+import Data from "../../../../../model/data";
+import Auth from "../../../../../middleware/auth";
+import { changeObjArrToCamel, changeObjToSnake } from "../../../../../lib/caseChange";
 
 export default async (req, res) => {
   const { machineId } = req.query;
