@@ -11,16 +11,18 @@ export default async (req, res) => {
       case "POST":
         function makeDataLableValStructure(data) {
           let result = {};
-
+          const objectWithMostKeys = data.reduce((prev, current) => {
+            return Object.keys(prev.sensorData).length > Object.keys(current.sensorData).length ? prev : current;
+          });
           data.forEach(item => {
-            Object.keys(item.sensorData).forEach(key => {
+            Object.keys(objectWithMostKeys.sensorData).forEach(key => {
               if (!result[key]) {
                 result[key] = {
                   label: [],
                   val: []
                 };
               }
-              result[key].label.push(item.createdAt);
+              result[key].label.push(item.createdAt.toISOString().slice(0, -5));
               result[key].val.push(item.sensorData[key]);
             });
           });

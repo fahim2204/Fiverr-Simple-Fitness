@@ -19,19 +19,31 @@ export default function Home() {
   const [deviceList, setDeviceList] = useState([]);
   const [deviceData, setDeviceData] = useState([]);
   const [selectedMachineId, setSelectedMachineId] = useState(null);
-  const [from, setFrom] = useState(new Date(Date.now() - 864e5 * 3))
-  const [to, setTo] = useState(new Date())
+  const [graphLabels, setGraphLabels] = useState([]);
+  const [from, setFrom] = useState(new Date(Date.now() - 864e5 * 6));
+  const [to, setTo] = useState(new Date());
 
   const fetchDeviceData = () => {
     axios
-      .post(`api/data/machine/${selectedMachineId}/filter`, { from, to }, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      })
+      .post(
+        `api/data/machine/${selectedMachineId}/filter`,
+        { from, to },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      )
       .then((res) => {
-        console.log('Object.keys(res.data)>> ', res.data.temp.label);
-
+        setGraphLabels(
+          res.data[Object.keys(res.data)[0]]?.label.map((item) =>
+            new Date(item).toLocaleString("en-US", {
+              hour: "numeric",
+              minute: "numeric",
+              hour12: true,
+            })
+          )
+        );
         setDeviceData(res.data);
       })
       .catch((error) => {
@@ -66,7 +78,7 @@ export default function Home() {
 
   useEffect(() => {
     if (selectedMachineId) fetchDeviceData();
-  }, [selectedMachineId]);
+  }, [selectedMachineId, from, to]);
 
   // This is for view a loading screen while it searching for Token
   if (checkingAuth) {
@@ -109,8 +121,24 @@ export default function Home() {
                     })}
                   </select>
 
-                  <input type="datetime-local" name="from" id="from" />
-                  <input type="datetime-local" name="to" id="to" />
+                  <div className="flex">
+                    <input
+                      className="bg-gray-50 border border-gray-300 text-gray-900 mr-4 mb-6 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                      type="datetime-local"
+                      value={from.toISOString().slice(0, -5)}
+                      onChange={(e) => setFrom(new Date(e.target.value))}
+                      name="from"
+                      id="from"
+                    />
+                    <input
+                      className="bg-gray-50 border border-gray-300 text-gray-900 mb-6 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                      type="datetime-local"
+                      value={to.toISOString().slice(0, -5)}
+                      onChange={(e) => setTo(new Date(e.target.value))}
+                      name="to"
+                      id="to"
+                    />
+                  </div>
                 </div>
                 <div className="grid grid-cols-2 gap-6">
                   <div>
@@ -118,12 +146,11 @@ export default function Home() {
                       height={80}
                       width={"100%"}
                       data={{
-                        labels: [new Date(from),
-                          new Date(from).toLocaleString('en-US', {hour: 'numeric', minute: 'numeric', hour12: true}),
-                          new Date(from+864e5 * 3).toLocaleString('en-US', {hour: 'numeric', minute: 'numeric', hour12: true}),
-                          new Date(from).toLocaleString('en-US', {hour: 'numeric', minute: 'numeric', hour12: true}),
-                        ],
-                        datasets: Object.entries(deviceData).map(([label, { val }]) => ({ label: label.charAt(0).toUpperCase() + label.slice(1), data: val })),
+                        labels: graphLabels,
+                        datasets: Object.entries(deviceData).map(([label, { val }]) => ({
+                          label: label.charAt(0).toUpperCase() + label.slice(1),
+                          data: val,
+                        })),
                       }}
                     />
                   </div>
@@ -132,8 +159,11 @@ export default function Home() {
                       height={80}
                       width={"100%"}
                       data={{
-                        labels: deviceData?.resistance?.label.map((item) => `${new Date(item).getHours()}:${new Date(item).getMinutes()}`),
-                        datasets: Object.entries(deviceData).map(([label, { val }]) => ({ label: label.charAt(0).toUpperCase() + label.slice(1), data: val })),
+                        labels: graphLabels,
+                        datasets: Object.entries(deviceData).map(([label, { val }]) => ({
+                          label: label.charAt(0).toUpperCase() + label.slice(1),
+                          data: val,
+                        })),
                       }}
                     />
                   </div>
