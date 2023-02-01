@@ -16,68 +16,70 @@ export default function Home() {
   const router = useRouter();
   const { token, setToken } = useContext(AuthContext);
   const [checkingAuth, setCheckingAuth] = useState(true);
-  const [deviceList, setDeviceList] = useState([])
-  const [deviceData, setDeviceData] = useState([])
-  const [selectedMachineId, setSelectedMachineId] = useState(null)
-
+  const [deviceList, setDeviceList] = useState([]);
+  const [deviceData, setDeviceData] = useState([]);
+  const [selectedMachineId, setSelectedMachineId] = useState(null);
+  const [selectedType, setSelectedType] = useState(null);
+  const [tableData, setTableData] = useState(null);
+  const [graphLabels, setGraphLabels] = useState([]);
+  const [from, setFrom] = useState(new Date(Date.now() - 864e5 * 6));
+  const [to, setTo] = useState(new Date());
 
   const fetchDeviceData = () => {
-    axios.get(`api/data/machine/${selectedMachineId}`, {
-      headers: {
-        'Authorization': `Bearer ${token}`
-      }
-    }).then(res => {
-      console.log(res.data);
-      console.log('convertArray()>> ', convertSensorData(res.data));
-      setDeviceData(res.data)
-
-    }).catch(error => {
-      console.log(error);
-    });
-  }
-  function convertSensorData(sensorDataArray) {
-    const uniqueSensorData = [...new Set(sensorDataArray.map(item => Object.keys(item.sensorData)).flat())];
-    
-    return uniqueSensorData.reduce((acc, sensor) => {
-      const sensorData2 = sensorDataArray.filter(data => data.sensorData.hasOwnProperty(sensor));
-      
-      console.log('uniqueSensorData>> ', sensorData2);
-      acc[sensor] = {
-        label: sensorData2.map(data => data.createdAt.split(" ")[1] + data.createdAt.split(" ")[2]),
-        value: sensorData2.map(data => data.sensorData)
-      };
-      return acc;
-    }, {});
-  }
-
-
+    axios
+      .post(
+        `api/data/machine/${selectedMachineId}/filter`,
+        { from, to },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      )
+      .then((res) => {
+        setDeviceData(res.data);
+        setSelectedType(Object.keys(res.data)[0]);
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  };
   const fetchDeviceList = () => {
-    axios.get('api/assign/own', {
-      headers: {
-        'Authorization': `Bearer ${token}`
-      }
-    }).then(res => {
-      // console.log(res.data);
-      setDeviceList(res.data)
-      setSelectedMachineId(res.data[0].fkMachineId)
-    }).catch(error => {
-      console.log(error);
-    });
-  }
+    axios
+      .get("api/assign/own", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+      .then((res) => {
+        // console.log(res.data);
+        setDeviceList(res.data);
+        setSelectedMachineId(res.data[0].fkMachineId);
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  };
+  useEffect(() => {
+    if (deviceData && selectedType) {
+      setTableData(deviceData[selectedType]);
+    }
+    else
+    setTableData(null)
+  }, [selectedType, deviceData]);
 
   useEffect(() => {
     if (!isTokenValid(token)) {
       router.push("login");
     } else {
-      fetchDeviceList()
+      fetchDeviceList();
       setCheckingAuth(false);
     }
   }, []);
 
   useEffect(() => {
-    if (selectedMachineId)
-      fetchDeviceData()
-  }, [selectedMachineId]);
+    if (selectedMachineId) fetchDeviceData();
+  }, [selectedMachineId, from, to]);
 
   // This is for view a loading screen while it searching for Token
   if (checkingAuth) {
@@ -105,161 +107,161 @@ export default function Home() {
             <div className="col-span-7 sm:col-span-8 md:col-span-9">
               <div className="flex flex-col shadow rounded-xl p-6">
                 <div className="mx-auto mb-6">
-                  <Select id="machine" onChange={(e) => setSelectedMachineId(e.target.value)}>
-                    <React.Fragment>
-                      {
-                        deviceList.map((item, index) => {
-                          return (
-                            <option value={item.fkMachineId}>
-                              {item.machineMac}
-                            </option>
-                          )
-                        })
-                      }
-                    </React.Fragment>
-                  </Select>
+                  {/* Select Device */}
+                  <select
+                    id="machine"
+                    onChange={(e) => setSelectedMachineId(e.target.value)}
+                    className="bg-gray-50 border border-gray-300 text-gray-900 mb-6 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                  >
+                    {deviceList.map((item, index) => {
+                      return (
+                        <option key={index} value={item.fkMachineId}>
+                          {item.machineMac}
+                        </option>
+                      );
+                    })}
+                  </select>
+
+                  <div className="flex">
+                    <input
+                      className="bg-gray-50 border border-gray-300 text-gray-900 mr-4 mb-6 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                      type="datetime-local"
+                      value={from.toISOString().slice(0, -5)}
+                      onChange={(e) => setFrom(new Date(e.target.value))}
+                      name="from"
+                      id="from"
+                    />
+                    <input
+                      className="bg-gray-50 border border-gray-300 text-gray-900 mb-6 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                      type="datetime-local"
+                      value={to.toISOString().slice(0, -5)}
+                      onChange={(e) => setTo(new Date(e.target.value))}
+                      name="to"
+                      id="to"
+                    />
+                  </div>
+                  {/* Select DataType */}
+                  <select
+                    id="type"
+                    onChange={(e) => setSelectedType(e.target.value)}
+                    className="bg-gray-50 border border-gray-300 text-gray-900 mb-6 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                  >
+                    {deviceData &&
+                      Object.keys(deviceData).map((item, index) => {
+                        return (
+                          <option key={index} value={item}>
+                            {item.charAt(0).toUpperCase() + item.slice(1)}
+                          </option>
+                        );
+                      })}
+                  </select>
                 </div>
                 <div className="">
-
-                  <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
-                    <table class="w-full text-sm text-left text-gray-500">
-                      <thead class="text-xs text-white uppercase bg-lb-green-600">
+                  <div className="relative overflow-x-auto shadow-md sm:rounded-lg">
+                    <table className="w-full text-sm text-left text-gray-500">
+                      <thead className="text-xs text-white uppercase bg-lb-green-600">
                         <tr>
-                          <th scope="col" class="px-6 py-3">
+                          <th scope="col" className="px-6 py-3">
                             Date
                           </th>
-                          <th scope="col" class="px-6 py-3">
+                          <th scope="col" className="px-6 py-3">
                             Time
                           </th>
-                          <th scope="col" class="px-6 py-3">
-                            Category
-                          </th>
-                          <th scope="col" class="px-6 py-3">
-                            Price
-                          </th>
-                          <th scope="col" class="px-6 py-3">
-                            Action
+                          <th scope="col" className="px-6 py-3">
+                            Data
                           </th>
                         </tr>
                       </thead>
                       <tbody>
-                        <tr class="bg-white border-b dark:bg-gray-900 dark:border-gray-700">
-                          <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                            Apple MacBook Pro 17"
-                          </th>
-                          <td class="px-6 py-4">
-                            Sliver
-                          </td>
-                          <td class="px-6 py-4">
-                            Laptop
-                          </td>
-                          <td class="px-6 py-4">
-                            $2999
-                          </td>
-                          <td class="px-6 py-4">
-                            <a href="#" class="font-medium text-blue-600 dark:text-blue-500 hover:underline">Edit</a>
-                          </td>
-                        </tr>
-                        <tr class="border-b bg-gray-50 dark:bg-gray-800 dark:border-gray-700">
-                          <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                            Microsoft Surface Pro
-                          </th>
-                          <td class="px-6 py-4">
-                            White
-                          </td>
-                          <td class="px-6 py-4">
-                            Laptop PC
-                          </td>
-                          <td class="px-6 py-4">
-                            $1999
-                          </td>
-                          <td class="px-6 py-4">
-                            <a href="#" class="font-medium text-blue-600 dark:text-blue-500 hover:underline">Edit</a>
-                          </td>
-                        </tr>
-                        <tr class="bg-white border-b dark:bg-gray-900 dark:border-gray-700">
-                          <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                            Magic Mouse 2
-                          </th>
-                          <td class="px-6 py-4">
-                            Black
-                          </td>
-                          <td class="px-6 py-4">
-                            Accessories
-                          </td>
-                          <td class="px-6 py-4">
-                            $99
-                          </td>
-                          <td class="px-6 py-4">
-                            <a href="#" class="font-medium text-blue-600 dark:text-blue-500 hover:underline">Edit</a>
-                          </td>
-                        </tr>
-                        <tr class="border-b bg-gray-50 dark:bg-gray-800 dark:border-gray-700">
-                          <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                            Google Pixel Phone
-                          </th>
-                          <td class="px-6 py-4">
-                            Gray
-                          </td>
-                          <td class="px-6 py-4">
-                            Phone
-                          </td>
-                          <td class="px-6 py-4">
-                            $799
-                          </td>
-                          <td class="px-6 py-4">
-                            <a href="#" class="font-medium text-blue-600 dark:text-blue-500 hover:underline">Edit</a>
-                          </td>
-                        </tr>
-                        <tr>
-                          <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
-                            Apple Watch 5
-                          </th>
-                          <td class="px-6 py-4">
-                            Red
-                          </td>
-                          <td class="px-6 py-4">
-                            Wearables
-                          </td>
-                          <td class="px-6 py-4">
-                            $999
-                          </td>
-                          <td class="px-6 py-4">
-                            <a href="#" class="font-medium text-blue-600 dark:text-blue-500 hover:underline">Edit</a>
-                          </td>
-                        </tr>
+                        {tableData?.val.map((item, index) => {
+                          if (item)
+                            return (
+                              <tr
+                                key={index}
+                                className="bg-white border-b dark:bg-gray-900 dark:border-gray-700"
+                              >
+                                <td className="px-6 py-4">
+                                  {tableData?.label[index].split("T")[0]}
+                                </td>
+                                <td className="px-6 py-4">
+                                  {new Date(tableData?.label[index]).toLocaleString("en-US", {
+                                    hour: "numeric",
+                                    minute: "numeric",
+                                    hour12: true,
+                                  })}
+                                </td>
+                                <td className="px-6 py-4">{item}</td>
+                              </tr>
+                            );
+                        })}
                       </tbody>
                     </table>
                   </div>
                 </div>
 
-                <div className="mt-6 mx-auto">
+                {/* <div className="mt-6 mx-auto">
                   <nav aria-label="Page navigation example">
-                    <ul class="inline-flex -space-x-px">
+                    <ul className="inline-flex -space-x-px">
                       <li>
-                        <a href="#" class="px-3 py-2 ml-0 leading-tight text-gray-500 bg-white border border-gray-300 rounded-l-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">Previous</a>
+                        <a
+                          href="#"
+                          className="px-3 py-2 ml-0 leading-tight text-gray-500 bg-white border border-gray-300 rounded-l-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
+                        >
+                          Previous
+                        </a>
                       </li>
                       <li>
-                        <a href="#" class="px-3 py-2 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">1</a>
+                        <a
+                          href="#"
+                          className="px-3 py-2 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
+                        >
+                          1
+                        </a>
                       </li>
                       <li>
-                        <a href="#" class="px-3 py-2 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">2</a>
+                        <a
+                          href="#"
+                          className="px-3 py-2 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
+                        >
+                          2
+                        </a>
                       </li>
                       <li>
-                        <a href="#" aria-current="page" class="px-3 py-2 text-blue-600 border border-gray-300 bg-blue-50 hover:bg-blue-100 hover:text-blue-700 dark:border-gray-700 dark:bg-gray-700 dark:text-white">3</a>
+                        <a
+                          href="#"
+                          aria-current="page"
+                          className="px-3 py-2 text-blue-600 border border-gray-300 bg-blue-50 hover:bg-blue-100 hover:text-blue-700 dark:border-gray-700 dark:bg-gray-700 dark:text-white"
+                        >
+                          3
+                        </a>
                       </li>
                       <li>
-                        <a href="#" class="px-3 py-2 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">4</a>
+                        <a
+                          href="#"
+                          className="px-3 py-2 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
+                        >
+                          4
+                        </a>
                       </li>
                       <li>
-                        <a href="#" class="px-3 py-2 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">5</a>
+                        <a
+                          href="#"
+                          className="px-3 py-2 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
+                        >
+                          5
+                        </a>
                       </li>
                       <li>
-                        <a href="#" class="px-3 py-2 leading-tight text-gray-500 bg-white border border-gray-300 rounded-r-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">Next</a>
+                        <a
+                          href="#"
+                          className="px-3 py-2 leading-tight text-gray-500 bg-white border border-gray-300 rounded-r-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
+                        >
+                          Next
+                        </a>
                       </li>
                     </ul>
                   </nav>
-                </div>
+                </div> */}
               </div>
             </div>
           </div>

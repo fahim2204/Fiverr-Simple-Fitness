@@ -11,6 +11,9 @@ export default async (req, res) => {
       case "POST":
         function makeDataLableValStructure(data) {
           let result = {};
+          if(data.length < 1) {
+            return data;
+          }
           const objectWithMostKeys = data.reduce((prev, current) => {
             return Object.keys(prev.sensorData).length > Object.keys(current.sensorData).length ? prev : current;
           });
