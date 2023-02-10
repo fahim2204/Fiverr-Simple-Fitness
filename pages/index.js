@@ -1,89 +1,84 @@
 import Head from "next/head";
 import Link from "next/link";
-import React, { useEffect, useContext } from "react";
+import React, { useContext, useEffect } from "react";
 import Sidebar from "../components/sidebar";
 import Footer from "../components/footer";
 import { Fragment, useState, useRef } from "react";
-import { Line, Bar } from "react-chartjs-2";
+import { Line, Bar, Pie } from "react-chartjs-2";
 import { Chart as ChartJS } from "chart.js/auto";
-import { AuthContext, isTokenValid, toastError, toastSuccess } from "../components/request";
-import { useRouter } from "next/router";
+import { Select } from "flowbite-react";
 import axios from "axios";
-
-
-import { BsFillPlusCircleFill } from "react-icons/bs";
-import { RiDeviceFill } from "react-icons/ri";
-import { AiTwotoneDelete } from "react-icons/ai";
-import { Button, Modal, Label, TextInput, Checkbox } from "flowbite-react";
-import PuffLoader from "react-spinners/PuffLoader";
+import { useRouter } from "next/router";
+import { AuthContext, isTokenValid } from "../components/request";
+import { PuffLoader } from "react-spinners";
 
 export default function Home() {
   const router = useRouter();
   const { token, setToken } = useContext(AuthContext);
   const [checkingAuth, setCheckingAuth] = useState(true);
-  const [isAddDeviceModalOpen, setIsAddDeviceModalOpen] = useState(false);
-  const [deviceList, setDeviceList] = useState([])
+  const [deviceList, setDeviceList] = useState([]);
+  const [deviceData, setDeviceData] = useState([]);
+  const [selectedMachineId, setSelectedMachineId] = useState(null);
+  const [graphLabels, setGraphLabels] = useState([]);
+  const [from, setFrom] = useState(new Date(Date.now() - 864e5 * 6));
+  const [to, setTo] = useState(new Date());
 
-  const machineMacRef = useRef(null)
-
-
-
-  const handleAddDeviceForm = (e) => {
-    e.preventDefault();
-    axios.post('api/assign', { machineMac: machineMacRef.current.value }, {
-      headers: {
-        'Authorization': `Bearer ${token}`
-      }
-    }).then(res => {
-      fetchDeviceList()
-      setIsAddDeviceModalOpen(false);
-      machineMacRef.current.value = ""
-      toastSuccess("Successfully Added!!")
-    }).catch(err => {
-      if (err.response.status === 422) {
-        setIsAddDeviceModalOpen(false);
-        machineMacRef.current.value = ""
-        toastError(err.response.data.errors.machineMac)
-      } else {
-        toastError("Something went wrong!!")
-      }
-    });
-  }
-
-  const handleDeleteDevice = (deviceId) => {
-    axios.delete(`api/assign/${deviceId}`, {
-      headers: {
-        'Authorization': `Bearer ${token}`
-      }
-    }).then(res => {
-      fetchDeviceList()
-      toastSuccess("Removed Successfully!!")
-    }).catch(err => {
-      toastError("Something went wrong!!")
-    });
-  }
-
+  const fetchDeviceData = () => {
+    axios
+      .post(
+        `api/data/machine/${selectedMachineId}/filter`,
+        { from, to },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      )
+      .then((res) => {
+        setGraphLabels(
+          res.data[Object.keys(res.data)[0]]?.label.map((item) =>
+            new Date(item).toLocaleString("en-US", {
+              hour: "numeric",
+              minute: "numeric",
+              hour12: true,
+            })
+          )
+        );
+        setDeviceData(res.data);
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  };
   const fetchDeviceList = () => {
-    axios.get('api/assign/own', {
-      headers: {
-        'Authorization': `Bearer ${token}`
-      }
-    }).then(res => {
-      // console.log(res.data);
-      setDeviceList(res.data)
-    }).catch(error => {
-      console.log(error);
-    });
-  }
+    axios
+      .get("api/assign/own", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+      .then((res) => {
+        // console.log(res.data);
+        setDeviceList(res.data);
+        setSelectedMachineId(res.data[0].fkMachineId);
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  };
 
   useEffect(() => {
     if (!isTokenValid(token)) {
       router.push("login");
     } else {
-      fetchDeviceList()
+      fetchDeviceList();
       setCheckingAuth(false);
     }
   }, []);
+
+  useEffect(() => {
+    if (selectedMachineId) fetchDeviceData();
+  }, [selectedMachineId, from, to]);
 
   // This is for view a loading screen while it searching for Token
   if (checkingAuth) {
@@ -110,84 +105,68 @@ export default function Home() {
             </div>
             <div className="col-span-7 sm:col-span-8 md:col-span-9">
               <div className="flex flex-col shadow rounded-xl p-6">
-                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
-                  <div
-                    onClick={() => {
-                      setIsAddDeviceModalOpen(true);
-                    }}
-                    className="bg-lb-green-600 rounded-xl shadow h-32 flex-col flex items-center justify-center cursor-pointer group hover:bg-lb-green-500 hover:shadow-2xl transition-all duration-300"
+                <div className="mx-auto mb-6">
+                  {/* Select Device */}
+                  <select
+                    id="machine"
+                    onChange={(e) => setSelectedMachineId(e.target.value)}
+                    className="bg-gray-50 border border-gray-300 text-gray-900 mb-6 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                   >
-                    <BsFillPlusCircleFill className="text-lb-green-200 text-3xl group-hover:text-white transition-all duration-300" />
-                    <span className="text-lb-green-200 text-xs mt-1 group-hover:text-white transition-all duration-300">
-                      Add Device
-                    </span>
+                    {deviceList.map((item, index) => {
+                      return (
+                        <option key={index} value={item.fkMachineId}>
+                          {item.machineMac}
+                        </option>
+                      );
+                    })}
+                  </select>
+
+                  <div className="flex">
+                    <input
+                      className="bg-gray-50 border border-gray-300 text-gray-900 mr-4 mb-6 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                      type="datetime-local"
+                      value={from.toISOString().slice(0, -5)}
+                      onChange={(e) => setFrom(new Date(e.target.value))}
+                      name="from"
+                      id="from"
+                    />
+                    <input
+                      className="bg-gray-50 border border-gray-300 text-gray-900 mb-6 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                      type="datetime-local"
+                      value={to.toISOString().slice(0, -5)}
+                      onChange={(e) => setTo(new Date(e.target.value))}
+                      name="to"
+                      id="to"
+                    />
                   </div>
-                  <>
-                    <Modal
-                      show={isAddDeviceModalOpen}
-                      size="md"
-                      popup={true}
-                      onClose={() => {
-                        setIsAddDeviceModalOpen(false);
+                </div>
+                <div className="grid grid-cols-2 gap-6">
+                  <div>
+                    <Line
+                      height={80}
+                      width={"100%"}
+                      data={{
+                        labels: graphLabels,
+                        datasets: Object.entries(deviceData).map(([label, { val }]) => ({
+                          label: label.charAt(0).toUpperCase() + label.slice(1),
+                          data: val,
+                        })),
                       }}
-                    >
-                      <Modal.Header />
-                      <Modal.Body>
-                        <form onSubmit={(e) => handleAddDeviceForm(e)} className="space-y-6 px-6 pb-4 sm:pb-6 lg:px-8 xl:pb-8">
-                          <h3 className="text-xl text-center font-medium text-gray-900 dark:text-white">
-                            Add a Device
-                          </h3>
-                          <div>
-                            <div className="mb-2 block">
-                              <Label htmlFor="machineMac" value="Device MAC" />
-                            </div>
-                            <TextInput id="machineMac" name="machineMac" ref={machineMacRef} placeholder="LBXXXXX" required={true} />
-                          </div>
-
-
-                          <div className="flex justify-center">
-                            <Button type="submit">Add</Button>
-                          </div>
-
-                        </form>
-                      </Modal.Body>
-                    </Modal>
-                  </>
-                  {deviceList && deviceList.map((item, index) => {
-                    return (
-                      <div key={index} className="bg-lb-green-600 rounded-xl shadow h-32 flex flex-col group items-center cursor-pointer relative hover:bg-lb-green-500 hover:shadow-2xl transition-all duration-300">
-                        <div className="text-xs text-white my-1 flex items-center absolute top-0">
-                          <span className="text-sm text-lb-green-200">{item.status === 1 ? "Online" : "Offline"}</span>
-                          <div className={`${item.status === 1 ? 'bg-green-400' : 'bg-red-600'} rounded-full w-2 h-2 ml-1 animate-pulse`}></div>
-                        </div>
-                        <div className="my-auto flex flex-col items-center select-none">
-                          <RiDeviceFill className="text-lb-green-200 text-3xl group-hover:text-lb-green-50 transition-all duration-300" />
-                          <span className="text-lb-green-200 text-xs mt-1 line-clamp-1 group-hover:text-lb-green-50 transition-all duration-300">
-                            {item.machineMac}
-                          </span>
-                        </div>
-                        <div className="text-xs text-white my-1 group-hover:flex items-center absolute bottom-0 hidden transition-all duration-300">
-                          <AiTwotoneDelete onClick={() => handleDeleteDevice(item.fkMachineId)} className="text-xl my-1 text-red-700 hover:scale-125 cursor-pointer transition-all duration-300 hover:bg-red-700 hover:text-lb-green-200 rounded-full hover:p-1" />
-                        </div>
-                      </div>
-                    )
-                  })}
-
-                  {/* <div className="bg-lb-green-600 rounded-xl shadow h-32 flex flex-col group items-center cursor-pointer relative hover:bg-lb-green-500 hover:shadow-2xl transition-all duration-300">
-                    <div className="text-xs text-white my-1 flex items-center absolute top-0">
-                      <span className="text-sm text-lb-green-200">Offline</span>
-                      <div className="bg-red-700 rounded-full w-2 h-2 ml-1"></div>
-                    </div>
-                    <div className="my-auto flex flex-col items-center select-none">
-                      <RiDeviceFill className="text-lb-green-200 text-3xl group-hover:text-lb-green-50 transition-all duration-300" />
-                      <span className="text-lb-green-200 text-xs mt-1 line-clamp-1 group-hover:text-lb-green-50 transition-all duration-300">
-                        Device Name
-                      </span>
-                    </div>
-                    <div className="text-xs text-white my-1 group-hover:flex items-center absolute bottom-0 hidden transition-all duration-300">
-                      <AiTwotoneDelete className="text-xl my-1 text-red-700 hover:scale-125 cursor-pointer transition-all duration-300 hover:bg-red-700 hover:text-lb-green-200 rounded-full hover:p-1" />
-                    </div>
-                  </div> */}
+                    />
+                  </div>
+                  <div>
+                    <Bar
+                      height={80}
+                      width={"100%"}
+                      data={{
+                        labels: graphLabels,
+                        datasets: Object.entries(deviceData).map(([label, { val }]) => ({
+                          label: label.charAt(0).toUpperCase() + label.slice(1),
+                          data: val,
+                        })),
+                      }}
+                    />
+                  </div>
                 </div>
               </div>
             </div>

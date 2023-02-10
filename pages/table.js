@@ -8,9 +8,18 @@ import { Line, Bar, Pie } from "react-chartjs-2";
 import { Chart as ChartJS } from "chart.js/auto";
 import { Select } from "flowbite-react";
 import axios from "axios";
+import 'flowbite';
 import { useRouter } from "next/router";
 import { AuthContext, isTokenValid } from "../components/request";
 import { PuffLoader } from "react-spinners";
+
+import { Dropdown } from "flowbite-react";
+
+const deviceListtt = [
+  { fkMachineId: 1, machineMac: "Option 1" },
+  { fkMachineId: 2, machineMac: "Option 2" },
+  { fkMachineId: 3, machineMac: "Option 3" }
+];
 
 export default function Home() {
   const router = useRouter();
@@ -24,6 +33,7 @@ export default function Home() {
   const [graphLabels, setGraphLabels] = useState([]);
   const [from, setFrom] = useState(new Date(Date.now() - 864e5 * 6));
   const [to, setTo] = useState(new Date());
+
 
   const fetchDeviceData = () => {
     axios
@@ -65,7 +75,7 @@ export default function Home() {
       setTableData(deviceData[selectedType]);
     }
     else
-    setTableData(null)
+      setTableData(null)
   }, [selectedType, deviceData]);
 
   useEffect(() => {
@@ -90,6 +100,22 @@ export default function Home() {
     );
   }
 
+
+  const [selectedOptions, setSelectedOptions] = useState([]);
+
+  const handleOptionChange = (option) => {
+    let newSelectedOptions;
+    if (selectedOptions.includes(option)) {
+      newSelectedOptions = selectedOptions.filter(
+        (selectedOption) => selectedOption !== option
+      );
+    } else {
+      newSelectedOptions = [...selectedOptions, option];
+    }
+    setSelectedOptions(newSelectedOptions);
+  };
+
+
   return (
     <>
       <Head>
@@ -108,6 +134,29 @@ export default function Home() {
               <div className="flex flex-col shadow rounded-xl p-6">
                 <div className="mx-auto mb-6">
                   {/* Select Device */}
+                  {/* sidf */}
+
+                  <Dropdown>
+                    <Dropdown.Toggle>
+                      Selected Options: {selectedOptions.join(", ")}
+                    </Dropdown.Toggle>
+                    <Dropdown.Menu>
+                      <Dropdown.Item key={index}>
+                        <input
+                          type="checkbox"
+                          id={`${item.fkMachineId}-checkbox`}
+                          value={item.fkMachineId}
+                          checked={selectedOptions.includes(item.fkMachineId)}
+                          onChange={() => handleOptionChange(item.fkMachineId)}
+                        />
+                        <label htmlFor={`${item.fkMachineId}-checkbox`}>
+                          {item.machineMac}
+                        </label>
+                      </Dropdown.Item>
+                    </Dropdown.Menu>
+                  </Dropdown>
+
+                  {/* sjdfhasd */}
                   <select
                     id="machine"
                     onChange={(e) => setSelectedMachineId(e.target.value)}

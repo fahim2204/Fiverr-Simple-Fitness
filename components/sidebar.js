@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { MdDevicesOther } from "react-icons/md";
+import { MdDevicesOther, MdDashboard } from "react-icons/md";
 import { VscGraphLine, VscTable } from "react-icons/vsc";
 import { TbLogout } from "react-icons/tb";
 import { useRouter } from "next/router";
@@ -33,33 +33,30 @@ const Sidebar = () => {
           <li>
             <Link href={"/"}>
               <div
-                className={`flex items-center px-3 rounded py-2 hover:bg-lb-green-300 transition-all duration-300 ${
-                  router.route === "/" ? "bg-lb-green-600 text-white" : ""
-                }`}
+                className={`flex items-center px-3 rounded py-2 hover:bg-lb-green-300 transition-all duration-300 ${router.route === "/" ? "bg-lb-green-600 text-white" : ""
+                  }`}
               >
-                <MdDevicesOther className="mr-3 text-lg" />
+                <MdDashboard className="mr-3 text-lg" />
                 <span className="font-semibold">Dashboard</span>
               </div>
             </Link>
           </li>
           <li>
-            <Link href={"/graph"}>
+            <Link href={"/device"}>
               <div
-                className={`flex items-center px-3 rounded py-2 hover:bg-lb-green-300 transition-all duration-300 ${
-                  router.route === "/graph" ? "bg-lb-green-600 text-white" : ""
-                }`}
+                className={`flex items-center px-3 rounded py-2 hover:bg-lb-green-300 transition-all duration-300 ${router.route === "/device" ? "bg-lb-green-600 text-white" : ""
+                  }`}
               >
-                <VscGraphLine className="mr-3 text-lg" />
-                <span className="font-semibold">Graph View</span>
+                <MdDevicesOther className="mr-3 text-lg" />
+                <span className="font-semibold">Device Management</span>
               </div>
             </Link>
           </li>
           <li>
             <Link href={"/table"}>
               <div
-                className={`flex items-center px-3 rounded py-2 hover:bg-lb-green-300 transition-all duration-300 ${
-                  router.route === "/table" ? "bg-lb-green-600 text-white" : ""
-                }`}
+                className={`flex items-center px-3 rounded py-2 hover:bg-lb-green-300 transition-all duration-300 ${router.route === "/table" ? "bg-lb-green-600 text-white" : ""
+                  }`}
               >
                 <VscTable className="mr-3 text-lg" />
                 <span className="font-semibold">Table View</span>
