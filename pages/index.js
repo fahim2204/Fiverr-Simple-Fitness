@@ -80,6 +80,14 @@ export default function Home() {
     if (selectedMachineId) fetchDeviceData();
   }, [selectedMachineId, from, to]);
 
+  const setFormToDate = (e) => {
+    const filterVal = e.target.value;
+    if(filterVal === "1hour"){
+      // setFrom();
+      setTo(new Date());
+    }
+  };
+
   // This is for view a loading screen while it searching for Token
   if (checkingAuth) {
     return (
@@ -104,7 +112,7 @@ export default function Home() {
               <Sidebar />
             </div>
             <div className="col-span-7 sm:col-span-8 md:col-span-9">
-              <div className="flex flex-col shadow rounded-xl p-6">
+              <div className="flex flex-col shadow border border-slate-300 rounded-xl p-6">
                 <div className="mx-auto mb-6">
                   {/* Select Device */}
                   <select
@@ -119,6 +127,18 @@ export default function Home() {
                         </option>
                       );
                     })}
+                  </select>
+
+                  <select
+                    id="filter"
+                    onChange={(e) => setFormToDate(e)}
+                    className="bg-gray-50 border border-gray-300 text-gray-900 mb-6 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                  >
+                    <option value="1hour">Last 1 Hour</option>
+                    <option value="6hour">Last 6 Hour</option>
+                    <option value="today">Today</option>
+                    <option value="yesterday">Yesterday</option>
+                    <option value="7day">Last 7 Day</option>
                   </select>
 
                   <div className="flex">

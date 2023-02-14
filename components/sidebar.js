@@ -19,7 +19,7 @@ const Sidebar = () => {
 
   return (
     <>
-      <div className="flex flex-col shadow rounded-xl overflow-hidden">
+      <div className="flex flex-col shadow rounded-xl border border-slate-300 overflow-hidden">
         <div className="hover:scale-110 transition-all duration-300 my-2">
           <Link href={"/"}>
             <img
