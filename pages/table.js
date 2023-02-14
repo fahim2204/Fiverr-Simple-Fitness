@@ -6,20 +6,16 @@ import Footer from "../components/footer";
 import { Fragment, useState, useRef } from "react";
 import { Line, Bar, Pie } from "react-chartjs-2";
 import { Chart as ChartJS } from "chart.js/auto";
-import { Select } from "flowbite-react";
 import axios from "axios";
 import 'flowbite';
 import { useRouter } from "next/router";
 import { AuthContext, isTokenValid } from "../components/request";
 import { PuffLoader } from "react-spinners";
+import Select from 'react-select';
+
 
 import { Dropdown } from "flowbite-react";
 
-const deviceListtt = [
-  { fkMachineId: 1, machineMac: "Option 1" },
-  { fkMachineId: 2, machineMac: "Option 2" },
-  { fkMachineId: 3, machineMac: "Option 3" }
-];
 
 export default function Home() {
   const router = useRouter();
@@ -39,7 +35,7 @@ export default function Home() {
     axios
       .post(
         `api/data/machine/${selectedMachineId}/filter`,
-        { from, to },
+        { from, to, type: "table" },
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -47,8 +43,12 @@ export default function Home() {
         }
       )
       .then((res) => {
+        console.log("Device Data", res.data);
+        console.log(res.data.filter(item => item.title === "temp"));
         setDeviceData(res.data);
-        setSelectedType(Object.keys(res.data)[0]);
+        // setTableData(res.data)
+        setSelectedType([...new Set(res.data.map(x => x.title))]);
+        // setSelectedType(Object.keys(res.data)[0]);
       })
       .catch((error) => {
         console.log(error);
@@ -101,20 +101,12 @@ export default function Home() {
   }
 
 
-  const [selectedOptions, setSelectedOptions] = useState([]);
+  function handleSelectChange(selectedOptions) {
+    // console.log(selectedOptions);
+    // console.log("tableData: ", selectedOptions[0].value);
+    setTableData(deviceData.filter(item => selectedOptions.map(x => x.value).includes(item.title)));
 
-  const handleOptionChange = (option) => {
-    let newSelectedOptions;
-    if (selectedOptions.includes(option)) {
-      newSelectedOptions = selectedOptions.filter(
-        (selectedOption) => selectedOption !== option
-      );
-    } else {
-      newSelectedOptions = [...selectedOptions, option];
-    }
-    setSelectedOptions(newSelectedOptions);
-  };
-
+  }
 
   return (
     <>
@@ -134,29 +126,6 @@ export default function Home() {
               <div className="flex flex-col shadow rounded-xl p-6">
                 <div className="mx-auto mb-6">
                   {/* Select Device */}
-                  {/* sidf */}
-
-                  <Dropdown>
-                    <Dropdown.Toggle>
-                      Selected Options: {selectedOptions.join(", ")}
-                    </Dropdown.Toggle>
-                    <Dropdown.Menu>
-                      <Dropdown.Item key={index}>
-                        <input
-                          type="checkbox"
-                          id={`${item.fkMachineId}-checkbox`}
-                          value={item.fkMachineId}
-                          checked={selectedOptions.includes(item.fkMachineId)}
-                          onChange={() => handleOptionChange(item.fkMachineId)}
-                        />
-                        <label htmlFor={`${item.fkMachineId}-checkbox`}>
-                          {item.machineMac}
-                        </label>
-                      </Dropdown.Item>
-                    </Dropdown.Menu>
-                  </Dropdown>
-
-                  {/* sjdfhasd */}
                   <select
                     id="machine"
                     onChange={(e) => setSelectedMachineId(e.target.value)}
@@ -189,21 +158,13 @@ export default function Home() {
                       id="to"
                     />
                   </div>
-                  {/* Select DataType */}
-                  <select
-                    id="type"
-                    onChange={(e) => setSelectedType(e.target.value)}
-                    className="bg-gray-50 border border-gray-300 text-gray-900 mb-6 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                  >
-                    {deviceData &&
-                      Object.keys(deviceData).map((item, index) => {
-                        return (
-                          <option key={index} value={item}>
-                            {item.charAt(0).toUpperCase() + item.slice(1)}
-                          </option>
-                        );
-                      })}
-                  </select>
+
+                  {/* Multiple Data Selection */}
+                  <Select options={selectedType?.map(option => ({
+                    value: option,
+                    label: option.charAt(0).toUpperCase() + option.slice(1),
+                  }))} isMulti onChange={handleSelectChange} />
+
                 </div>
                 <div className="">
                   <div className="relative overflow-x-auto shadow-md sm:rounded-lg">
@@ -217,100 +178,39 @@ export default function Home() {
                             Time
                           </th>
                           <th scope="col" className="px-6 py-3">
-                            Data
+                            Title
+                          </th>
+                          <th scope="col" className="px-6 py-3">
+                            Value
                           </th>
                         </tr>
                       </thead>
                       <tbody>
-                        {tableData?.val.map((item, index) => {
-                          if (item)
-                            return (
-                              <tr
-                                key={index}
-                                className="bg-white border-b dark:bg-gray-900 dark:border-gray-700"
-                              >
-                                <td className="px-6 py-4">
-                                  {tableData?.label[index].split("T")[0]}
-                                </td>
-                                <td className="px-6 py-4">
-                                  {new Date(tableData?.label[index]).toLocaleString("en-US", {
-                                    hour: "numeric",
-                                    minute: "numeric",
-                                    hour12: true,
-                                  })}
-                                </td>
-                                <td className="px-6 py-4">{item}</td>
-                              </tr>
-                            );
+                        {tableData?.map((item, index) => {
+                          return (
+                            <tr
+                              key={index}
+                              className="bg-white border-b dark:bg-gray-900 dark:border-gray-700"
+                            >
+                              <td className="px-6 py-4">
+                                {item.createdAt.split("T")[0]}
+                              </td>
+                              <td className="px-6 py-4">
+                                {new Date(item.createdAt).toLocaleString("en-US", {
+                                  hour: "numeric",
+                                  minute: "numeric",
+                                  hour12: true,
+                                })}
+                              </td>
+                              <td className="px-6 py-4">{item.title}</td>
+                              <td className="px-6 py-4">{item.value}</td>
+                            </tr>
+                          );
                         })}
                       </tbody>
                     </table>
                   </div>
                 </div>
-
-                {/* <div className="mt-6 mx-auto">
-                  <nav aria-label="Page navigation example">
-                    <ul className="inline-flex -space-x-px">
-                      <li>
-                        <a
-                          href="#"
-                          className="px-3 py-2 ml-0 leading-tight text-gray-500 bg-white border border-gray-300 rounded-l-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
-                        >
-                          Previous
-                        </a>
-                      </li>
-                      <li>
-                        <a
-                          href="#"
-                          className="px-3 py-2 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
-                        >
-                          1
-                        </a>
-                      </li>
-                      <li>
-                        <a
-                          href="#"
-                          className="px-3 py-2 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
-                        >
-                          2
-                        </a>
-                      </li>
-                      <li>
-                        <a
-                          href="#"
-                          aria-current="page"
-                          className="px-3 py-2 text-blue-600 border border-gray-300 bg-blue-50 hover:bg-blue-100 hover:text-blue-700 dark:border-gray-700 dark:bg-gray-700 dark:text-white"
-                        >
-                          3
-                        </a>
-                      </li>
-                      <li>
-                        <a
-                          href="#"
-                          className="px-3 py-2 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
-                        >
-                          4
-                        </a>
-                      </li>
-                      <li>
-                        <a
-                          href="#"
-                          className="px-3 py-2 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
-                        >
-                          5
-                        </a>
-                      </li>
-                      <li>
-                        <a
-                          href="#"
-                          className="px-3 py-2 leading-tight text-gray-500 bg-white border border-gray-300 rounded-r-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
-                        >
-                          Next
-                        </a>
-                      </li>
-                    </ul>
-                  </nav>
-                </div> */}
               </div>
             </div>
           </div>

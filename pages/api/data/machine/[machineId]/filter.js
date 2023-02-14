@@ -32,8 +32,19 @@ export default async (req, res) => {
 
           return result;
         }
+        function convertSensorData(data) {
+          const result = [];
+          data.forEach(item => {
+            const {createdAt, sensorData} = item;
+            for (const [title, value] of Object.entries(sensorData)) {
+              result.push({createdAt, title, value});
+            }
+          });
+          return result;
+        }
+        
         Data.GetByDataByMachineIdFromTo(machineId, req.body.from, req.body.to, (err, data) => {
-          err ? res.status(500).send(err) : res.status(200).send(makeDataLableValStructure(changeObjArrToCamel(data)));
+          err ? res.status(500).send(err) : res.status(200).send(req.body.type==="table"?convertSensorData(changeObjArrToCamel(data)):makeDataLableValStructure(changeObjArrToCamel(data)));
         });
         break;
       default:
