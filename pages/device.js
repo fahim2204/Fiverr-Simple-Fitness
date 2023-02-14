@@ -109,7 +109,7 @@ export default function Home() {
               <Sidebar />
             </div>
             <div className="col-span-7 sm:col-span-8 md:col-span-9">
-              <div className="flex flex-col shadow rounded-xl p-6">
+              <div className="flex flex-col shadow border border-slate-300 rounded-xl p-6">
                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
                   <div
                     onClick={() => {
