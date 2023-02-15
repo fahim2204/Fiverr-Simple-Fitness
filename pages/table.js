@@ -52,14 +52,12 @@ export default function Home() {
     {
       id: "createdAt",
       label: "Date",
-      minWidth: 100,
       align: "center",
       format: (value) => value.split("T")[0],
     },
     {
       id: "createdAt",
       label: "Time",
-      minWidth: 100,
       align: "center",
       format: (value) =>
         new Date(value).toLocaleString("en-US", {
@@ -68,20 +66,13 @@ export default function Home() {
           hour12: true,
         }),
     },
-    {
-      id: "title",
-      label: "Title",
+    ...allType.map((label) => ({
+      id: label,
+      label: label.charAt(0).toUpperCase() + label.slice(1),
       minWidth: 100,
       align: "center",
-      format: (value) => value.charAt(0).toUpperCase() + value.slice(1),
-    },
-    {
-      id: "value",
-      label: "Value",
-      minWidth: 100,
-      align: "center",
-      format: (value) => value.toFixed(2),
-    },
+      format: (value) => value?.toFixed(2),
+    })),
   ];
 
   const fetchDeviceData = () => {
@@ -97,7 +88,9 @@ export default function Home() {
       )
       .then((res) => {
         setDeviceData(res.data);
-        setAllType([...new Set(res.data.map((x) => x.title))]);
+        // console.log(Object.keys(res.data[0]));
+        // setAllType([...new Set(res.data.map((x) => x.title))]);
+        setAllType(Object.keys(res.data[0]).slice(1,));
       })
       .catch((error) => {
         console.log(error);
@@ -150,15 +143,9 @@ export default function Home() {
 
   useEffect(() => {
     if (deviceData) {
-      selectedType.length !== 0
-        ? setTableData(
-            deviceData
-              .filter((item) => selectedType.includes(item.title))
-              .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
-          )
-        : setTableData(deviceData.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)));
+      setTableData(deviceData.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)));
     } else setTableData(null);
-  }, [selectedType, deviceData]);
+  }, [deviceData]);
 
   useEffect(() => {
     if (selectedMachineId) fetchDeviceData();
@@ -199,10 +186,10 @@ export default function Home() {
       <main>
         <div className="mx-auto max-w-6xl flex items-center">
           <div className="w-full grid grid-cols-12 gap-4 lg:gap-6 px-3 py-6">
-            <div className="col-span-12 sm:col-span-4">
+            <div className="col-span-12 sm:col-span-4 md:col-span-3">
               <Sidebar />
             </div>
-            <div className="col-span-12 sm:col-span-8">
+            <div className="col-span-12 sm:col-span-8 md:col-span-9">
               <div className="flex flex-col shadow border border-slate-300 rounded-xl p-6">
                 <form className="mx-auto mb-6 w-full">
                   {/* Select Device */}
@@ -223,7 +210,7 @@ export default function Home() {
                   {/* Filter on Different Time Duration */}
                   <select
                     id="filter"
-                    defaultValue={"1hour"} 
+                    defaultValue={"1hour"}
                     onChange={(e) => setFormToDate(e)}
                     className="bg-gray-50 border border-gray-300 text-gray-900 mb-6 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                   >
@@ -256,18 +243,18 @@ export default function Home() {
                   </div>
 
                   {/* Multiple Data Selection */}
-                  <Select
+                  {/* <Select
                     options={allType?.map((option) => ({
                       value: option,
                       label: option.charAt(0).toUpperCase() + option.slice(1),
                     }))}
                     isMulti
                     onChange={handleSelectChange}
-                  />
+                  /> */}
                 </form>
 
                 {/* Data Table With Pagination Sorting */}
-                <div className="border">
+                {tableData.length>1 ?  <div className="border">
                   <TableContainer>
                     <Table>
                       <TableHead>
@@ -312,7 +299,11 @@ export default function Home() {
                     onPageChange={handleChangePage}
                     onRowsPerPageChange={handleChangeRowsPerPage}
                   />
-                </div>
+                </div>:<>
+             <p className="text-center font-semibold text-slate-600">Sorry! There is no data available.</p>
+             <p className="text-center text-xs font-semibold text-slate-600">-- Please Change Inputs --</p>
+                </>}
+               
               </div>
             </div>
           </div>

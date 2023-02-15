@@ -32,6 +32,27 @@ export default async (req, res) => {
 
           return result;
         }
+        function makeDataDateStructure(data) {
+          if(data.length < 1) {
+            return data;
+          }
+          const objectWithMostKeys = data.reduce((prev, current) => {
+            return Object.keys(prev.sensorData).length > Object.keys(current.sensorData).length ? prev : current;
+          });
+          const sensorDataKeys = Object.keys(objectWithMostKeys.sensorData);
+        
+          return data.map((datum) => {
+            const sensorData = datum.sensorData;
+            const datumWithSensorData = { createdAt: datum.createdAt };
+        
+            for (const key of sensorDataKeys) {
+              datumWithSensorData[key] = sensorData[key] || 0;
+            }
+        
+            return datumWithSensorData;
+          });
+        }
+      
         function convertSensorData(data) {
           const result = [];
           data.forEach(item => {
@@ -44,7 +65,7 @@ export default async (req, res) => {
         }
         
         Data.GetByDataByMachineIdFromTo(machineId, req.body.from, req.body.to, (err, data) => {
-          err ? res.status(500).send(err) : res.status(200).send(req.body.type==="table"?convertSensorData(changeObjArrToCamel(data)):makeDataLableValStructure(changeObjArrToCamel(data)));
+          err ? res.status(500).send(err) : res.status(200).send(req.body.type==="table"?makeDataDateStructure(changeObjArrToCamel(data)):makeDataLableValStructure(changeObjArrToCamel(data)));
         });
         break;
       default:
