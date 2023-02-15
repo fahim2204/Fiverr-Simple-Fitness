@@ -4,32 +4,86 @@ import React, { useContext, useEffect } from "react";
 import Sidebar from "../components/sidebar";
 import Footer from "../components/footer";
 import { Fragment, useState, useRef } from "react";
-import { Line, Bar, Pie } from "react-chartjs-2";
-import { Chart as ChartJS } from "chart.js/auto";
 import axios from "axios";
-import 'flowbite';
+import "flowbite";
 import { useRouter } from "next/router";
 import { AuthContext, isTokenValid } from "../components/request";
 import { PuffLoader } from "react-spinners";
-import Select from 'react-select';
+import Select from "react-select";
+import { DateTime } from "luxon";
 
-
-import { Dropdown } from "flowbite-react";
-
+// MUI Table Component
+import Table from "@mui/material/Table";
+import TableBody from "@mui/material/TableBody";
+import TableCell from "@mui/material/TableCell";
+import TableContainer from "@mui/material/TableContainer";
+import TableHead from "@mui/material/TableHead";
+import TablePagination from "@mui/material/TablePagination";
+import TableRow from "@mui/material/TableRow";
 
 export default function Home() {
+  const dt = DateTime.local().setZone('UTC+6');
+
   const router = useRouter();
   const { token, setToken } = useContext(AuthContext);
   const [checkingAuth, setCheckingAuth] = useState(true);
   const [deviceList, setDeviceList] = useState([]);
   const [deviceData, setDeviceData] = useState([]);
   const [selectedMachineId, setSelectedMachineId] = useState(null);
-  const [selectedType, setSelectedType] = useState(null);
+  const [allType, setAllType] = useState([]);
+  const [selectedType, setSelectedType] = useState([]);
   const [tableData, setTableData] = useState(null);
-  const [graphLabels, setGraphLabels] = useState([]);
-  const [from, setFrom] = useState(new Date(Date.now() - 864e5 * 6));
-  const [to, setTo] = useState(new Date());
+  const [from, setFrom] = useState(dt.minus({ hours: 1 }));
+  const [to, setTo] = useState(dt);
 
+
+  // Table Functions
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
+
+  const handleChangePage = (event, newPage) => {
+    setPage(newPage);
+  };
+  const handleChangeRowsPerPage = (event) => {
+    setRowsPerPage(+event.target.value);
+    setPage(0);
+  };
+  // Table Column
+  const columns = [
+    {
+      id: "createdAt",
+      label: "Date",
+      minWidth: 100,
+      align: "center",
+      format: (value) => value.split("T")[0],
+    },
+    {
+      id: "createdAt",
+      label: "Time",
+      minWidth: 100,
+      align: "center",
+      format: (value) =>
+        new Date(value).toLocaleString("en-US", {
+          hour: "numeric",
+          minute: "numeric",
+          hour12: true,
+        }),
+    },
+    {
+      id: "title",
+      label: "Title",
+      minWidth: 100,
+      align: "center",
+      format: (value) => value.charAt(0).toUpperCase() + value.slice(1),
+    },
+    {
+      id: "value",
+      label: "Value",
+      minWidth: 100,
+      align: "center",
+      format: (value) => value.toFixed(2),
+    },
+  ];
 
   const fetchDeviceData = () => {
     axios
@@ -43,12 +97,8 @@ export default function Home() {
         }
       )
       .then((res) => {
-        console.log("Device Data", res.data);
-        console.log(res.data.filter(item => item.title === "temp"));
         setDeviceData(res.data);
-        // setTableData(res.data)
-        setSelectedType([...new Set(res.data.map(x => x.title))]);
-        // setSelectedType(Object.keys(res.data)[0]);
+        setAllType([...new Set(res.data.map((x) => x.title))]);
       })
       .catch((error) => {
         console.log(error);
@@ -62,7 +112,6 @@ export default function Home() {
         },
       })
       .then((res) => {
-        // console.log(res.data);
         setDeviceList(res.data);
         setSelectedMachineId(res.data[0].fkMachineId);
       })
@@ -70,14 +119,55 @@ export default function Home() {
         console.log(error);
       });
   };
+
+const setFormToDate = (e) => {
+  const filterVal = e.target.value;
+  const now = DateTime.local();
+
+  if (filterVal === "1hour") {
+    setFrom(now.minus({ hours: 1 }));
+    setTo(now);
+  } else if (filterVal === "6hour") {
+    setFrom(now.minus({ hours: 6 }));
+    setTo(now);
+  } else if (filterVal === "today") {
+    const today = now.startOf('day');
+    setFrom(today);
+    setTo(now);
+  } else if (filterVal === "yesterday") {
+    const yesterday = now.minus({ days: 1 }).startOf('day');
+    setFrom(yesterday);
+    setTo(now.startOf('day'));
+  } else if (filterVal === "7day") {
+    const lastWeek = now.minus({ days: 7 }).startOf('day');
+    setFrom(lastWeek);
+    setTo(now);
+  } else {
+    const lastMonth = now.minus({ days: 30 }).startOf('day');
+    setFrom(lastMonth);
+    setTo(now);
+  }
+};
+
+
   useEffect(() => {
-    if (deviceData && selectedType) {
-      setTableData(deviceData[selectedType]);
-    }
-    else
-      setTableData(null)
+
+    if (deviceData) {
+      selectedType.length !== 0
+        ? setTableData(
+            deviceData
+              .filter((item) => selectedType.includes(item.title))
+              .sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt))
+          )
+        : setTableData(deviceData.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt)));
+    } else setTableData(null);
   }, [selectedType, deviceData]);
 
+  useEffect(() => {
+    if (selectedMachineId) fetchDeviceData();
+  }, [selectedMachineId, from, to]);
+
+  // Redirect If Not Authenticated
   useEffect(() => {
     if (!isTokenValid(token)) {
       router.push("login");
@@ -86,10 +176,6 @@ export default function Home() {
       setCheckingAuth(false);
     }
   }, []);
-
-  useEffect(() => {
-    if (selectedMachineId) fetchDeviceData();
-  }, [selectedMachineId, from, to]);
 
   // This is for view a loading screen while it searching for Token
   if (checkingAuth) {
@@ -100,12 +186,11 @@ export default function Home() {
     );
   }
 
-
   function handleSelectChange(selectedOptions) {
-    // console.log(selectedOptions);
-    // console.log("tableData: ", selectedOptions[0].value);
-    setTableData(deviceData.filter(item => selectedOptions.map(x => x.value).includes(item.title)));
-
+    setSelectedType(selectedOptions.map((x) => x.value));
+    // setTableData(
+    //   deviceData.filter((item) => selectedOptions.map((x) => x.value).includes(item.title))
+    // );
   }
 
   return (
@@ -140,76 +225,97 @@ export default function Home() {
                     })}
                   </select>
 
+                  {/* Filter on Different Time Duration */}
+                  <select
+                    id="filter"
+                    onChange={(e) => setFormToDate(e)}
+                    className="bg-gray-50 border border-gray-300 text-gray-900 mb-6 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                  >
+                    <option defaultValue={"1hour"}>Last 1 Hour</option>
+                    <option value="6hour">Last 6 Hour</option>
+                    <option value="today">Today</option>
+                    <option value="yesterday">Yesterday</option>
+                    <option value="7day">Last 7 Day</option>
+                    <option value="30day">Last 30 Day</option>
+                  </select>
+
+                  {/* From To Date Selection Section */}
                   <div className="flex">
                     <input
                       className="bg-gray-50 border border-gray-300 text-gray-900 mr-4 mb-6 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                       type="datetime-local"
-                      value={from.toISOString().slice(0, -5)}
-                      onChange={(e) => setFrom(new Date(e.target.value))}
+                      value={from.toISO().slice(0, -13)}
+                      onChange={(e) => setFrom(DateTime.fromISO(e.target.value))}
                       name="from"
                       id="from"
                     />
                     <input
                       className="bg-gray-50 border border-gray-300 text-gray-900 mb-6 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                       type="datetime-local"
-                      value={to.toISOString().slice(0, -5)}
-                      onChange={(e) => setTo(new Date(e.target.value))}
+                      value={to.toISO().slice(0, -13)}
+                      onChange={(e) => setTo(DateTime.fromISO(e.target.value))}
                       name="to"
                       id="to"
                     />
                   </div>
 
                   {/* Multiple Data Selection */}
-                  <Select options={selectedType?.map(option => ({
-                    value: option,
-                    label: option.charAt(0).toUpperCase() + option.slice(1),
-                  }))} isMulti onChange={handleSelectChange} />
-
+                  <Select
+                    options={allType?.map((option) => ({
+                      value: option,
+                      label: option.charAt(0).toUpperCase() + option.slice(1),
+                    }))}
+                    isMulti
+                    onChange={handleSelectChange}
+                  />
                 </div>
-                <div className="">
-                  <div className="relative overflow-x-auto shadow-md sm:rounded-lg">
-                    <table className="w-full text-sm text-left text-gray-500">
-                      <thead className="text-xs text-white uppercase bg-lb-green-600">
-                        <tr>
-                          <th scope="col" className="px-6 py-3">
-                            Date
-                          </th>
-                          <th scope="col" className="px-6 py-3">
-                            Time
-                          </th>
-                          <th scope="col" className="px-6 py-3">
-                            Title
-                          </th>
-                          <th scope="col" className="px-6 py-3">
-                            Value
-                          </th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {tableData?.map((item, index) => {
-                          return (
-                            <tr
+
+                {/* Data Table With Pagination Sorting */}
+                <div className="border">
+                  <TableContainer>
+                    <Table>
+                      <TableHead>
+                        <TableRow>
+                          {columns.map((column, index) => (
+                            <TableCell
                               key={index}
-                              className="bg-white border-b dark:bg-gray-900 dark:border-gray-700"
+                              align={column.align}
+                              style={{ minWidth: column.minWidth }}
                             >
-                              <td className="px-6 py-4">
-                                {item.createdAt.split("T")[0]}
-                              </td>
-                              <td className="px-6 py-4">
-                                {new Date(item.createdAt).toLocaleString("en-US", {
-                                  hour: "numeric",
-                                  minute: "numeric",
-                                  hour12: true,
+                              {column.label}
+                            </TableCell>
+                          ))}
+                        </TableRow>
+                      </TableHead>
+                      <TableBody>
+                        {tableData
+                          ?.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                          .map((row, index) => {
+                            return (
+                              <TableRow hover role="checkbox" tabIndex={-1} key={index}>
+                                {columns.map((column, index) => {
+                                  const value = row[column.id];
+                                  return (
+                                    <TableCell key={index} align={column.align}>
+                                      {column.format ? column.format(value) : value}
+                                    </TableCell>
+                                  );
                                 })}
-                              </td>
-                              <td className="px-6 py-4">{item.title}</td>
-                              <td className="px-6 py-4">{item.value}</td>
-                            </tr>
-                          );
-                        })}
-                      </tbody>
-                    </table>
-                  </div>
+                              </TableRow>
+                            );
+                          })}
+                      </TableBody>
+                    </Table>
+                  </TableContainer>
+                  <TablePagination
+                    rowsPerPageOptions={[10, 25, 50, 100]}
+                    component="div"
+                    count={tableData?.length}
+                    rowsPerPage={rowsPerPage}
+                    page={page}
+                    onPageChange={handleChangePage}
+                    onRowsPerPageChange={handleChangeRowsPerPage}
+                  />
                 </div>
               </div>
             </div>
