@@ -38,7 +38,7 @@ export default function Home() {
 
   // Table Functions
   const [page, setPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [rowsPerPage, setRowsPerPage] = useState(5);
 
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
@@ -154,9 +154,9 @@ export default function Home() {
         ? setTableData(
             deviceData
               .filter((item) => selectedType.includes(item.title))
-              .sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt))
+              .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
           )
-        : setTableData(deviceData.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt)));
+        : setTableData(deviceData.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)));
     } else setTableData(null);
   }, [selectedType, deviceData]);
 
@@ -223,10 +223,11 @@ export default function Home() {
                   {/* Filter on Different Time Duration */}
                   <select
                     id="filter"
+                    defaultValue={"1hour"} 
                     onChange={(e) => setFormToDate(e)}
                     className="bg-gray-50 border border-gray-300 text-gray-900 mb-6 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                   >
-                    <option defaultValue={"1hour"}>Last 1 Hour</option>
+                    <option value="1hour">Last 1 Hour</option>
                     <option value="6hour">Last 6 Hour</option>
                     <option value="today">Today</option>
                     <option value="yesterday">Yesterday</option>
@@ -303,7 +304,7 @@ export default function Home() {
                     </Table>
                   </TableContainer>
                   <TablePagination
-                    rowsPerPageOptions={[10, 25, 50, 100]}
+                    rowsPerPageOptions={[5, 10, 25, 50, 100]}
                     component="div"
                     count={tableData?.length}
                     rowsPerPage={rowsPerPage}
