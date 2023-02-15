@@ -11,8 +11,12 @@ import axios from "axios";
 import { useRouter } from "next/router";
 import { AuthContext, isTokenValid } from "../components/request";
 import { PuffLoader } from "react-spinners";
+import { DateTime } from "luxon";
+
 
 export default function Home() {
+  const dt = DateTime.local().setZone("UTC+6");
+
   const router = useRouter();
   const { token, setToken } = useContext(AuthContext);
   const [checkingAuth, setCheckingAuth] = useState(true);
@@ -20,8 +24,8 @@ export default function Home() {
   const [deviceData, setDeviceData] = useState([]);
   const [selectedMachineId, setSelectedMachineId] = useState(null);
   const [graphLabels, setGraphLabels] = useState([]);
-  const [from, setFrom] = useState(new Date(Date.now() - 864e5 * 6));
-  const [to, setTo] = useState(new Date());
+  const [from, setFrom] = useState(dt.minus({ hours: 1 }));
+  const [to, setTo] = useState(dt);
 
   const fetchDeviceData = () => {
     axios
