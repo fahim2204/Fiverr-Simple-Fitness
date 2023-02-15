@@ -103,12 +103,12 @@ export default function Home() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <main>
-        <div className="sm:max-w-6xl mx-auto mt-8 px-6">
-          <div className="grid grid-cols-12 gap-12 mb-5">
-            <div className="col-span-5 sm:col-span-4 md:col-span-3">
+        <div className="mx-auto max-w-6xl flex items-center">
+          <div className="w-full grid grid-cols-12 gap-4 lg:gap-6 px-3 py-6">
+            <div className="col-span-12 sm:col-span-4 md:col-span-3">
               <Sidebar />
             </div>
-            <div className="col-span-7 sm:col-span-8 md:col-span-9">
+            <div className="col-span-12 sm:col-span-8 md:col-span-9">
               <div className="flex flex-col shadow border border-slate-300 rounded-xl p-6">
                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
                   <div
@@ -193,6 +193,7 @@ export default function Home() {
             </div>
           </div>
         </div>
+
       </main>
       <Footer />
     </>

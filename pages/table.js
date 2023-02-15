@@ -191,41 +191,43 @@ export default function Home() {
             </div>
             <div className="col-span-12 sm:col-span-8 md:col-span-9">
               <div className="flex flex-col shadow border border-slate-300 rounded-xl p-6">
-                <form className="mx-auto mb-6 w-full">
+                <div className="mx-auto mb-6 w-full">
                   {/* Select Device */}
-                  <select
-                    id="machine"
-                    onChange={(e) => setSelectedMachineId(e.target.value)}
-                    className="bg-gray-50 border border-gray-300 text-gray-900 mb-6 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5 w-full dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                  >
-                    {deviceList.map((item, index) => {
-                      return (
-                        <option key={index} value={item.fkMachineId}>
-                          {item.machineMac}
-                        </option>
-                      );
-                    })}
-                  </select>
+                  <div className="block sm:flex justify-center gap-4 md:w-3/4 mx-auto">
+                    <select
+                      id="machine"
+                      onChange={(e) => setSelectedMachineId(e.target.value)}
+                      className="bg-gray-50 border border-gray-300 text-gray-900 mb-6 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5 w-full dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                    >
+                      {deviceList.map((item, index) => {
+                        return (
+                          <option key={index} value={item.fkMachineId}>
+                            {item.machineMac}
+                          </option>
+                        );
+                      })}
+                    </select>
 
-                  {/* Filter on Different Time Duration */}
-                  <select
-                    id="filter"
-                    defaultValue={"1hour"}
-                    onChange={(e) => setFormToDate(e)}
-                    className="bg-gray-50 border border-gray-300 text-gray-900 mb-6 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                  >
-                    <option value="1hour">Last 1 Hour</option>
-                    <option value="6hour">Last 6 Hour</option>
-                    <option value="today">Today</option>
-                    <option value="yesterday">Yesterday</option>
-                    <option value="7day">Last 7 Day</option>
-                    <option value="30day">Last 30 Day</option>
-                  </select>
+                    {/* Filter on Different Time Duration */}
+                    <select
+                      id="filter"
+                      defaultValue={"1hour"}
+                      onChange={(e) => setFormToDate(e)}
+                      className="bg-gray-50 border border-gray-300 text-gray-900 mb-6 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                    >
+                      <option value="1hour">Last 1 Hour</option>
+                      <option value="6hour">Last 6 Hour</option>
+                      <option value="today">Today</option>
+                      <option value="yesterday">Yesterday</option>
+                      <option value="7day">Last 7 Day</option>
+                      <option value="30day">Last 30 Day</option>
+                    </select>
+                  </div>
 
                   {/* From To Date Selection Section */}
-                  <div className="flex justify-center">
+                  <div className="block sm:flex justify-center gap-4 md:w-3/4 mx-auto">
                     <input
-                      className="bg-gray-50 border border-gray-300 text-gray-900 mr-4 mb-6 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                      className="bg-gray-50 border border-gray-300 text-gray-900 mb-6 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                       type="datetime-local"
                       value={from.toISO().slice(0, -13)}
                       onChange={(e) => setFrom(DateTime.fromISO(e.target.value))}
@@ -233,7 +235,7 @@ export default function Home() {
                       id="from"
                     />
                     <input
-                      className="bg-gray-50 border border-gray-300 text-gray-900 mb-6 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                      className="bg-gray-50 border border-gray-300 text-gray-900 mb-6 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                       type="datetime-local"
                       value={to.toISO().slice(0, -13)}
                       onChange={(e) => setTo(DateTime.fromISO(e.target.value))}
@@ -251,10 +253,10 @@ export default function Home() {
                     isMulti
                     onChange={handleSelectChange}
                   /> */}
-                </form>
+                </div>
 
                 {/* Data Table With Pagination Sorting */}
-                {tableData.length>1 ?  <div className="border">
+                {tableData.length > 1 ? <div className="border">
                   <TableContainer>
                     <Table>
                       <TableHead>
@@ -299,11 +301,11 @@ export default function Home() {
                     onPageChange={handleChangePage}
                     onRowsPerPageChange={handleChangeRowsPerPage}
                   />
-                </div>:<>
-             <p className="text-center font-semibold text-slate-600">Sorry! There is no data available.</p>
-             <p className="text-center text-xs font-semibold text-slate-600">-- Please Change Inputs --</p>
+                </div> : <>
+                  <p className="text-center font-semibold text-slate-600">Sorry! There is no data available.</p>
+                  <p className="text-center text-xs font-semibold text-slate-600">-- Please Change Inputs --</p>
                 </>}
-               
+
               </div>
             </div>
           </div>

@@ -53,7 +53,7 @@ const Register = () => {
         <title>LogByte - Register</title>
       </Head>
       <main>
-        <div className="flex items-center min-h-screen bg-gray-100 justify-center">
+        <div className="flex items-center min-h-screen bg-gray-100 justify-center px-4 sm:px-0">
           <div className="overflow-hidden rounded-lg shadow-lg sm:max-w-sm md:mx-auto w-full">
             <div className="p-6 bg-white md:flex-1">
               <div className="hover:scale-110 transition-all duration-300">

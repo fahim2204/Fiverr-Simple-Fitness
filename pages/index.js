@@ -4,7 +4,7 @@ import React, { useContext, useEffect } from "react";
 import Sidebar from "../components/sidebar";
 import Footer from "../components/footer";
 import { Fragment, useState, useRef } from "react";
-import { Line, Bar, Pie } from "react-chartjs-2";
+import { Line, Bar, Pie, Bubble } from "react-chartjs-2";
 import { Chart as ChartJS } from "chart.js/auto";
 import { Select } from "flowbite-react";
 import axios from "axios";
@@ -71,6 +71,41 @@ export default function Home() {
       });
   };
 
+
+  useEffect(() => {
+    if (selectedMachineId) fetchDeviceData();
+  }, [selectedMachineId, from, to]);
+
+  const setFormToDate = (e) => {
+    const filterVal = e.target.value;
+    const now = DateTime.local();
+
+    if (filterVal === "1hour") {
+      setFrom(now.minus({ hours: 1 }));
+      setTo(now);
+    } else if (filterVal === "6hour") {
+      setFrom(now.minus({ hours: 6 }));
+      setTo(now);
+    } else if (filterVal === "today") {
+      const today = now.startOf("day");
+      setFrom(today);
+      setTo(now);
+    } else if (filterVal === "yesterday") {
+      const yesterday = now.minus({ days: 1 }).startOf("day");
+      setFrom(yesterday);
+      setTo(now.startOf("day"));
+    } else if (filterVal === "7day") {
+      const lastWeek = now.minus({ days: 7 }).startOf("day");
+      setFrom(lastWeek);
+      setTo(now);
+    } else {
+      const lastMonth = now.minus({ days: 30 }).startOf("day");
+      setFrom(lastMonth);
+      setTo(now);
+    }
+  };
+
+  // Redirect If Not Authenticated
   useEffect(() => {
     if (!isTokenValid(token)) {
       router.push("login");
@@ -79,18 +114,6 @@ export default function Home() {
       setCheckingAuth(false);
     }
   }, []);
-
-  useEffect(() => {
-    if (selectedMachineId) fetchDeviceData();
-  }, [selectedMachineId, from, to]);
-
-  const setFormToDate = (e) => {
-    const filterVal = e.target.value;
-    if(filterVal === "1hour"){
-      // setFrom();
-      setTo(new Date());
-    }
-  };
 
   // This is for view a loading screen while it searching for Token
   if (checkingAuth) {
@@ -110,61 +133,70 @@ export default function Home() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <main>
-        <div className="sm:max-w-6xl mx-auto mt-8 px-6">
-          <div className="grid grid-cols-12 gap-12 mb-5">
-            <div className="col-span-5 sm:col-span-4 md:col-span-3">
+        <div className="mx-auto max-w-6xl flex items-center">
+          <div className="w-full grid grid-cols-12 gap-4 lg:gap-6 px-3 py-6">
+            <div className="col-span-12 sm:col-span-4 md:col-span-3">
               <Sidebar />
             </div>
-            <div className="col-span-7 sm:col-span-8 md:col-span-9">
-              <div className="flex flex-col shadow border border-slate-300 rounded-xl p-6">
-                <div className="mx-auto mb-6">
+            <div className="col-span-12 sm:col-span-8 md:col-span-9">
+              <div className="flex flex-col shadow border border-slate-300 rounded-xl p-3 md:p-6 ">
+                <div className="mx-auto mb-6 w-full">
                   {/* Select Device */}
-                  <select
-                    id="machine"
-                    onChange={(e) => setSelectedMachineId(e.target.value)}
-                    className="bg-gray-50 border border-gray-300 text-gray-900 mb-6 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                  >
-                    {deviceList.map((item, index) => {
-                      return (
-                        <option key={index} value={item.fkMachineId}>
-                          {item.machineMac}
-                        </option>
-                      );
-                    })}
-                  </select>
+                  <div className="block sm:flex justify-center gap-4 md:w-3/4 mx-auto">
+                    <select
+                      id="machine"
+                      onChange={(e) => setSelectedMachineId(e.target.value)}
+                      className="bg-gray-50 border border-gray-300 text-gray-900 mb-6 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5 w-full dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                    >
+                      {deviceList.map((item, index) => {
+                        return (
+                          <option key={index} value={item.fkMachineId}>
+                            {item.machineMac}
+                          </option>
+                        );
+                      })}
+                    </select>
 
-                  <select
-                    id="filter"
-                    onChange={(e) => setFormToDate(e)}
-                    className="bg-gray-50 border border-gray-300 text-gray-900 mb-6 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                  >
-                    <option value="1hour">Last 1 Hour</option>
-                    <option value="6hour">Last 6 Hour</option>
-                    <option value="today">Today</option>
-                    <option value="yesterday">Yesterday</option>
-                    <option value="7day">Last 7 Day</option>
-                  </select>
+                    {/* Filter on Different Time Duration */}
+                    <select
+                      id="filter"
+                      defaultValue={"1hour"}
+                      onChange={(e) => setFormToDate(e)}
+                      className="bg-gray-50 border border-gray-300 text-gray-900 mb-6 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                    >
+                      <option value="1hour">Last 1 Hour</option>
+                      <option value="6hour">Last 6 Hour</option>
+                      <option value="today">Today</option>
+                      <option value="yesterday">Yesterday</option>
+                      <option value="7day">Last 7 Day</option>
+                      <option value="30day">Last 30 Day</option>
+                    </select>
+                  </div>
 
-                  <div className="flex">
+                  {/* From To Date Selection Section */}
+                  <div className="block sm:flex justify-center gap-4 md:w-3/4 mx-auto">
                     <input
-                      className="bg-gray-50 border border-gray-300 text-gray-900 mr-4 mb-6 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                      className="bg-gray-50 border border-gray-300 text-gray-900 mb-6 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                       type="datetime-local"
-                      value={from.toISOString().slice(0, -5)}
-                      onChange={(e) => setFrom(new Date(e.target.value))}
+                      value={from.toISO().slice(0, -13)}
+                      onChange={(e) => setFrom(DateTime.fromISO(e.target.value))}
                       name="from"
                       id="from"
                     />
                     <input
-                      className="bg-gray-50 border border-gray-300 text-gray-900 mb-6 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                      className="bg-gray-50 border border-gray-300 text-gray-900 mb-6 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                       type="datetime-local"
-                      value={to.toISOString().slice(0, -5)}
-                      onChange={(e) => setTo(new Date(e.target.value))}
+                      value={to.toISO().slice(0, -13)}
+                      onChange={(e) => setTo(DateTime.fromISO(e.target.value))}
                       name="to"
                       id="to"
                     />
                   </div>
                 </div>
-                <div className="grid grid-cols-2 gap-6">
+
+
+
+                {!Array.isArray(deviceData) ? <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
                     <Line
                       height={80}
@@ -191,11 +223,30 @@ export default function Home() {
                       }}
                     />
                   </div>
-                </div>
+                  <div>
+                    <Line
+                      height={80}
+                      width={"100%"}
+                      data={{
+                        labels: graphLabels,
+                        datasets: Object.entries(deviceData).map(([label, { val }]) => ({
+                          fill: true,
+                          label: label.charAt(0).toUpperCase() + label.slice(1),
+                          data: val,
+                        })),
+                      }}
+                    />
+                  </div>
+                </div> : <>
+                  <p className="text-center font-semibold text-slate-600">Sorry! There is no data available.</p>
+                  <p className="text-center text-xs font-semibold text-slate-600">-- Please Change Inputs --</p>
+                </>}
+
               </div>
             </div>
           </div>
         </div>
+
       </main>
       <Footer />
     </>
