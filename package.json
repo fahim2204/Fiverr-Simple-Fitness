@@ -10,6 +10,7 @@
     },
     "dependencies": {
         "@emotion/styled": "^11.10.5",
+        "@headlessui/react": "^1.7.10",
         "@mui/x-data-grid": "^5.17.23",
         "@next/font": "13.0.7",
         "@tailwindcss/line-clamp": "^0.4.2",
