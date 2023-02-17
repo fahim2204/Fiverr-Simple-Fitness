@@ -71,7 +71,6 @@ export default function Home() {
       label: label.charAt(0).toUpperCase() + label.slice(1),
       minWidth: 100,
       align: "center",
-      format: (value) => value?.toFixed(2),
     })),
   ];
 
