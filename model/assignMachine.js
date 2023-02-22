@@ -11,7 +11,7 @@ export default {
         pool.query("SELECT * FROM assign_machine WHERE fk_machine_id = ?", [id], callback);
     },
     GetByUserId:(id, callback) => {
-        pool.query("SELECT assign_machine.fk_machine_id, machine.machine_mac,assign_machine.status FROM assign_machine JOIN machine ON assign_machine.fk_machine_id = machine.machine_id WHERE fk_user_id = ?", [id], callback);
+        pool.query("SELECT assign_machine.fk_machine_id, machine.machine_mac,machine.status FROM assign_machine JOIN machine ON assign_machine.fk_machine_id = machine.machine_id WHERE fk_user_id = ?", [id], callback);
     },
     Create:(assignMachine, callback) => {
         pool.query("INSERT INTO assign_machine SET ?", assignMachine, callback);
