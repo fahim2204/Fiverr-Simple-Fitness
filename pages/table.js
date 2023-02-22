@@ -87,7 +87,8 @@ export default function Home() {
       )
       .then((res) => {
         setDeviceData(res.data);
-        // console.log(Object.keys(res.data[0]));
+        console.log("rs>>",res.data)
+        console.log(Object.keys(res.data[0]));
         // setAllType([...new Set(res.data.map((x) => x.title))]);
         setAllType(Object.keys(res.data[0]).slice(1,));
       })
@@ -255,7 +256,7 @@ export default function Home() {
                 </div>
 
                 {/* Data Table With Pagination Sorting */}
-                {tableData.length > 1 ? <div className="border">
+                {tableData.length > 0 ? <div className="border">
                   <TableContainer>
                     <Table>
                       <TableHead>
