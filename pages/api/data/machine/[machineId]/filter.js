@@ -1,6 +1,9 @@
 import Data from "../../../../../model/data";
 import Auth from "../../../../../middleware/auth";
-import { changeObjArrToCamel, changeObjToSnake } from "../../../../../lib/caseChange";
+import {
+  changeObjArrToCamel,
+  changeObjToSnake,
+} from "../../../../../lib/caseChange";
 
 export default async (req, res) => {
   const { machineId } = req.query;
@@ -11,62 +14,93 @@ export default async (req, res) => {
       case "POST":
         function makeDataLableValStructure(data) {
           let result = {};
-          if(data.length < 1) {
+          if (data.length < 1) {
             return data;
           }
           const objectWithMostKeys = data.reduce((prev, current) => {
-            return Object.keys(prev.sensorData).length > Object.keys(current.sensorData).length ? prev : current;
+            return Object.keys(prev.sensorData).length >
+              Object.keys(current.sensorData).length
+              ? prev
+              : current;
           });
-          data.forEach(item => {
-            Object.keys(objectWithMostKeys.sensorData).forEach(key => {
+          const adf = []
+          data.forEach((item) => {
+            Object.keys(objectWithMostKeys.sensorData).forEach((key) => {
+              if(result[key] === undefined){
+                result[key] = [];
+              }
               if (!result[key]) {
                 result[key] = {
                   label: [],
-                  val: []
+                  val: [],
                 };
               }
-              result[key].label.push(item.createdAt.toISOString().slice(0, -5));
-              result[key].val.push(item.sensorData[key]);
+              // result[key].push(item.createdAt.toISOString().slice(0, -5));
+              // result[key].push(item.sensorData[key]);
+              const temp = [];
+              temp.push(item.createdAt.getTime());
+              temp.push(parseFloat(item.sensorData[key]));
+              result[key].push(temp.sort((a, b) => a[0] - b[0]));
+
+              // result[key].val.push(item.sensorData[key]);
             });
           });
 
           return result;
         }
+
+        //For Table Data Structure
         function makeDataDateStructure(data) {
-          if(data.length < 1) {
+          if (data.length < 1) {
             return data;
           }
           const objectWithMostKeys = data.reduce((prev, current) => {
-            return Object.keys(prev.sensorData).length > Object.keys(current.sensorData).length ? prev : current;
+            return Object.keys(prev.sensorData).length >
+              Object.keys(current.sensorData).length
+              ? prev
+              : current;
           });
           const sensorDataKeys = Object.keys(objectWithMostKeys.sensorData);
-        
+
           return data.map((datum) => {
             const sensorData = datum.sensorData;
             const datumWithSensorData = { createdAt: datum.createdAt };
-        
+
             for (const key of sensorDataKeys) {
               datumWithSensorData[key] = sensorData[key] || 0;
             }
-        
+
             return datumWithSensorData;
           });
         }
-      
+
         function convertSensorData(data) {
           const result = [];
-          data.forEach(item => {
-            const {createdAt, sensorData} = item;
+          data.forEach((item) => {
+            const { createdAt, sensorData } = item;
             for (const [title, value] of Object.entries(sensorData)) {
-              result.push({createdAt, title, value});
+              result.push({ createdAt, title, value });
             }
           });
           return result;
         }
-        
-        Data.GetByDataByMachineIdFromTo(machineId, req.body.from, req.body.to, (err, data) => {
-          err ? res.status(500).send(err) : res.status(200).send(req.body.type==="table"?makeDataDateStructure(changeObjArrToCamel(data)):makeDataLableValStructure(changeObjArrToCamel(data)));
-        });
+
+        Data.GetByDataByMachineIdFromTo(
+          machineId,
+          req.body.from,
+          req.body.to,
+          (err, data) => {
+            err
+              ? res.status(500).send(err)
+              : res
+                  .status(200)
+                  .send(
+                    req.body.type === "table"
+                      ? makeDataDateStructure(changeObjArrToCamel(data))
+                      : makeDataLableValStructure(changeObjArrToCamel(data))
+                  );
+          }
+        );
         break;
       default:
         res.status(405).json({ error: "Bad Method Called!!" });
@@ -74,4 +108,3 @@ export default async (req, res) => {
     }
   });
 };
-

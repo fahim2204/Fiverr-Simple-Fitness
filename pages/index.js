@@ -12,7 +12,8 @@ import { useRouter } from "next/router";
 import { AuthContext, isTokenValid } from "../components/request";
 import { PuffLoader } from "react-spinners";
 import { DateTime } from "luxon";
-
+import Highcharts from "highcharts";
+import HighchartsReact from "highcharts-react-official";
 
 export default function Home() {
   const dt = DateTime.local().setZone("UTC+6");
@@ -39,15 +40,9 @@ export default function Home() {
         }
       )
       .then((res) => {
-        setGraphLabels(
-          res.data[Object.keys(res.data)[0]]?.label.map((item) =>
-            new Date(item).toLocaleString("en-US", {
-              hour: "numeric",
-              minute: "numeric",
-              hour12: true,
-            })
-          )
-        );
+        setGraphLabels(Object.keys(res.data));
+        // console.log("MachineData>>",res.data);
+        // console.log("AllSensor", Object.keys(res.data));
         setDeviceData(res.data);
       })
       .catch((error) => {
@@ -70,7 +65,6 @@ export default function Home() {
         console.log(error);
       });
   };
-
 
   useEffect(() => {
     if (selectedMachineId) fetchDeviceData();
@@ -124,6 +118,46 @@ export default function Home() {
     );
   }
 
+  const options = {
+    chart: {
+      zoomType: "x",
+      type: 'area'
+    },
+    title: {
+      text: "",
+    },
+    xAxis: {
+      type: "datetime",
+      dateTimeLabelFormats: {
+          minute: "%l :%P",
+          hour: "%l %P",
+          day: "%e. %b",
+          week: "%e. %b",
+          month: "%b '%y",
+          year: "%Y",
+        },
+    },
+    yAxis: {
+        title: {
+            text: "Number of Fruits",
+        },
+        offset: 15,
+    },
+    accessibility: {
+      screenReaderSection: {
+        beforeChartFormat:
+          "<{headingTagName}>{chartTitle}</{headingTagName}><div>{chartSubtitle}</div><div>{chartLongdesc}</div><div>{xAxisDescription}</div><div>{yAxisDescription}</div>",
+      },
+    },
+
+    series: graphLabels.map((item) => {
+      return {
+        name: item.charAt(0).toUpperCase() + item.slice(1),
+        data: deviceData[item],
+      };
+    }),
+  };
+
   return (
     <>
       <Head>
@@ -140,6 +174,7 @@ export default function Home() {
             </div>
             <div className="col-span-12 sm:col-span-8 md:col-span-9">
               <div className="flex flex-col shadow border border-slate-300 rounded-xl p-3 md:p-6 ">
+
                 <div className="mx-auto mb-6 w-full">
                   {/* Select Device */}
                   <div className="block sm:flex justify-center gap-4 md:w-3/4 mx-auto">
@@ -179,7 +214,9 @@ export default function Home() {
                       className="bg-gray-50 border border-gray-300 text-gray-900 mb-6 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                       type="datetime-local"
                       value={from.toISO().slice(0, -13)}
-                      onChange={(e) => setFrom(DateTime.fromISO(e.target.value))}
+                      onChange={(e) =>
+                        setFrom(DateTime.fromISO(e.target.value))
+                      }
                       name="from"
                       id="from"
                     />
@@ -194,59 +231,58 @@ export default function Home() {
                   </div>
                 </div>
 
+                {!Array.isArray(deviceData) ? (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                 <div  className="border rounded-xl shadow-lg py-2"><HighchartsReact highcharts={Highcharts} options={options} /></div>
 
-
-                {!Array.isArray(deviceData) ? <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div>
-                    <Line
-                      height={80}
-                      width={"100%"}
-                      data={{
-                        labels: graphLabels,
-                        datasets: Object.entries(deviceData).map(([label, { val }]) => ({
-                          label: label.charAt(0).toUpperCase() + label.slice(1),
-                          data: val,
-                        })),
-                      }}
-                    />
+                    <div>
+                      <Bar
+                        height={80}
+                        width={"100%"}
+                        data={{
+                          labels: graphLabels,
+                          datasets: Object.entries(deviceData).map(
+                            ([label, { val }]) => ({
+                              label:
+                                label.charAt(0).toUpperCase() + label.slice(1),
+                              data: val,
+                            })
+                          ),
+                        }}
+                      />
+                    </div>
+                    <div>
+                      <Line
+                        height={80}
+                        width={"100%"}
+                        data={{
+                          labels: graphLabels,
+                          datasets: Object.entries(deviceData).map(
+                            ([label, { val }]) => ({
+                              fill: true,
+                              label:
+                                label.charAt(0).toUpperCase() + label.slice(1),
+                              data: val,
+                            })
+                          ),
+                        }}
+                      />
+                    </div>
                   </div>
-                  <div>
-                    <Bar
-                      height={80}
-                      width={"100%"}
-                      data={{
-                        labels: graphLabels,
-                        datasets: Object.entries(deviceData).map(([label, { val }]) => ({
-                          label: label.charAt(0).toUpperCase() + label.slice(1),
-                          data: val,
-                        })),
-                      }}
-                    />
-                  </div>
-                  <div>
-                    <Line
-                      height={80}
-                      width={"100%"}
-                      data={{
-                        labels: graphLabels,
-                        datasets: Object.entries(deviceData).map(([label, { val }]) => ({
-                          fill: true,
-                          label: label.charAt(0).toUpperCase() + label.slice(1),
-                          data: val,
-                        })),
-                      }}
-                    />
-                  </div>
-                </div> : <>
-                  <p className="text-center font-semibold text-slate-600">Sorry! There is no data available.</p>
-                  <p className="text-center text-xs font-semibold text-slate-600">-- Please Change Inputs --</p>
-                </>}
-
+                ) : (
+                  <>
+                    <p className="text-center font-semibold text-slate-600">
+                      Sorry! There is no data available.
+                    </p>
+                    <p className="text-center text-xs font-semibold text-slate-600">
+                      -- Please Change Inputs --
+                    </p>
+                  </>
+                )}
               </div>
             </div>
           </div>
         </div>
-
       </main>
       <Footer />
     </>
