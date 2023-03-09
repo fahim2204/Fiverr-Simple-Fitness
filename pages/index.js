@@ -118,30 +118,60 @@ export default function Home() {
     );
   }
 
-  const options = {
+  const optionsLine = {
     chart: {
       zoomType: "x",
-      type: 'area'
     },
     title: {
-      text: "",
+      text: "Line Chart",
+    },
+    xAxis: {
+      type: "datetime",
+    },
+    yAxis: {
+      title: {
+        text: "",
+      },
+      offset: 15,
+    },
+    accessibility: {
+      screenReaderSection: {
+        beforeChartFormat:
+          "<{headingTagName}>{chartTitle}</{headingTagName}><div>{chartSubtitle}</div><div>{chartLongdesc}</div><div>{xAxisDescription}</div><div>{yAxisDescription}</div>",
+      },
+    },
+
+    series: graphLabels.map((item) => {
+      return {
+        name: item.charAt(0).toUpperCase() + item.slice(1),
+        data: deviceData[item],
+      };
+    }),
+  };
+  const optionsArea = {
+    chart: {
+      zoomType: "x",
+      type: "area",
+    },
+    title: {
+      text: "Area Chart",
     },
     xAxis: {
       type: "datetime",
       dateTimeLabelFormats: {
-          minute: "%l :%P",
-          hour: "%l %P",
-          day: "%e. %b",
-          week: "%e. %b",
-          month: "%b '%y",
-          year: "%Y",
-        },
+        minute: "%l :%P",
+        hour: "%l %P",
+        day: "%e. %b",
+        week: "%e. %b",
+        month: "%b '%y",
+        year: "%Y",
+      },
     },
     yAxis: {
-        title: {
-            text: "Number of Fruits",
-        },
-        offset: 15,
+      title: {
+        text: "Number of Fruits",
+      },
+      offset: 15,
     },
     accessibility: {
       screenReaderSection: {
@@ -174,7 +204,6 @@ export default function Home() {
             </div>
             <div className="col-span-12 sm:col-span-8 md:col-span-9">
               <div className="flex flex-col shadow border border-slate-300 rounded-xl p-3 md:p-6 ">
-
                 <div className="mx-auto mb-6 w-full">
                   {/* Select Device */}
                   <div className="block sm:flex justify-center gap-4 md:w-3/4 mx-auto">
@@ -232,40 +261,17 @@ export default function Home() {
                 </div>
 
                 {!Array.isArray(deviceData) ? (
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                 <div  className="border rounded-xl shadow-lg py-2"><HighchartsReact highcharts={Highcharts} options={options} /></div>
-
-                    <div>
-                      <Bar
-                        height={80}
-                        width={"100%"}
-                        data={{
-                          labels: graphLabels,
-                          datasets: Object.entries(deviceData).map(
-                            ([label, { val }]) => ({
-                              label:
-                                label.charAt(0).toUpperCase() + label.slice(1),
-                              data: val,
-                            })
-                          ),
-                        }}
+                  <div className="grid grid-cols-1 md:grid-cols-1 gap-6">
+                    <div className="border rounded-sm shadow-lg py-2">
+                      <HighchartsReact
+                        highcharts={Highcharts}
+                        options={optionsLine}
                       />
                     </div>
-                    <div>
-                      <Line
-                        height={80}
-                        width={"100%"}
-                        data={{
-                          labels: graphLabels,
-                          datasets: Object.entries(deviceData).map(
-                            ([label, { val }]) => ({
-                              fill: true,
-                              label:
-                                label.charAt(0).toUpperCase() + label.slice(1),
-                              data: val,
-                            })
-                          ),
-                        }}
+                    <div className="border rounded-sm shadow-lg py-2">
+                      <HighchartsReact
+                        highcharts={Highcharts}
+                        options={optionsArea}
                       />
                     </div>
                   </div>
