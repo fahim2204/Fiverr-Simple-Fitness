@@ -16,6 +16,9 @@ export default {
     Update:(id, machine, callback) => {
         pool.query("UPDATE machine SET ? WHERE machine_id = ?", [machine, id], callback);
     },
+    UpdateAllDeviceStatus:(callback) => {
+        pool.query("UPDATE machine SET status = ? WHERE updated_at < ?", [2, new Date(new Date().getTime() - 5 * 60 * 1000)], callback);
+    },
     Delete:(id, callback) => {
         pool.query("DELETE FROM machine WHERE machine_id = ?", [id], callback);
     }

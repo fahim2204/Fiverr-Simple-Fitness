@@ -5,18 +5,22 @@ import { changeObjArrToCamel, changeObjToSnake } from "../../../lib/caseChange";
 import { machineAssignDataValidate } from "../../../lib/validate";
 
 export default async (req, res) => {
-    const { method } = req
+  const { method } = req;
 
-    Auth.validateToken(req, res, () => {
-        switch (method) {
-            case 'GET':
-                AssignMachine.GetByUserId(req.authUser.id, (err, data) => {
-                    err ? res.status(500).send(err) : res.status(200).send(changeObjArrToCamel(data));
-                });
-                break
-            default:
-                res.status(405).json({ error: "Bad Method Called!!" })
-                break
-        }
-    });
-}
+  Auth.validateToken(req, res, () => {
+    switch (method) {
+      case "GET":
+        // Change All Device Status
+        Machine.UpdateAllDeviceStatus((err, data) => {});
+        AssignMachine.GetByUserId(req.authUser.id, (err, data) => {
+          err
+            ? res.status(500).send(err)
+            : res.status(200).send(changeObjArrToCamel(data));
+        });
+        break;
+      default:
+        res.status(405).json({ error: "Bad Method Called!!" });
+        break;
+    }
+  });
+};
