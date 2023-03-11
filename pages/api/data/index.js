@@ -26,12 +26,18 @@ export default async (req, res) => {
       // yesterday.setDate(today.getDate() - 1);
       // req.body.createdAt = yesterday;
       // req.body.updatedAt = yesterday;
+   
       req.body.createdAt = req.body.createdAt || new Date();
       req.body.updatedAt = req.body.updatedAt || new Date();
       req.body.sensorData = JSON.stringify(req.body.sensorData);
 
       // Change All key Value to Snake Case For DB
       req.body = changeObjToSnake(req.body);
+      // const date = new Date();
+      // console.log("Date: " + date)
+      // const indiaTime = date.toLocaleString('en-US', { timeZone: 'Asia/Kolkata' });
+      // console.log(indiaTime);
+      // console.log("IndianDate: " + indiaTime)
 
       Data.Create(req.body, (err, data) => {
         err ? res.status(500).send(err) : res.status(201).send(data);

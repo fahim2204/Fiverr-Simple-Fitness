@@ -125,6 +125,11 @@ export default function Home() {
     title: {
       text: "Line Chart",
     },
+    time:{
+      // useUTC: false,
+      // timezone: 'Asia/Calcutta',
+      // timezoneOffset: -5 * 60
+    },
     xAxis: {
       type: "datetime",
     },

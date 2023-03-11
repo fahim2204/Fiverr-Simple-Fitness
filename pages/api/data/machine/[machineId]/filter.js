@@ -38,6 +38,11 @@ export default async (req, res) => {
               // result[key].push(item.createdAt.toISOString().slice(0, -5));
               // result[key].push(item.sensorData[key]);
               const temp = [];
+              // console.log("item.createdAt",item.createdAt)
+              // console.log("item.createdAt",item.createdAt.getTime())
+              // console.log("India.item.createdAt",new Date(item.createdAt.toLocaleString('en-US', { timeZone: 'Asia/Kolkata' })).getTime())
+              // console.log("India.item.createdAt",new Date(item.createdAt.toLocaleString('en-US', { timeZone: 'Asia/Kolkata' })))
+              // console.log("India.item.createdAt",item.createdAt.toLocaleString('en-US', { timeZone: 'Asia/Kolkata' }))
               temp.push(item.createdAt.getTime());
               temp.push(parseFloat(item.sensorData[key]));
               result[key].push(temp.sort((a, b) => a[0] - b[0]));

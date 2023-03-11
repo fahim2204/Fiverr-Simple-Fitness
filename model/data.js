@@ -11,7 +11,7 @@ export default {
         pool.query("SELECT * FROM data WHERE fk_machine_id = ?", [id], callback);
     },
     GetByDataByMachineIdFromTo: (id, from, to, callback) => {
-        pool.query("SELECT * FROM data WHERE fk_machine_id = ? AND created_at BETWEEN ? AND ?", [id, from, to], callback);
+        pool.query("SELECT * FROM data WHERE fk_machine_id = ? AND created_at BETWEEN ? AND ? ORDER BY `created_at` ASC", [id, from, to], callback);
     },
     Create: (data, callback) => {
         pool.query("INSERT INTO data SET ?", data, callback);
