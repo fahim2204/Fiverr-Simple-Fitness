@@ -69,7 +69,7 @@ export default async (req, res) => {
 
           return data.map((datum) => {
             const sensorData = datum.sensorData;
-            const datumWithSensorData = { createdAt: datum.createdAt };
+            const datumWithSensorData = { createdAt: new Date(datum.createdAt.toLocaleString('en-US', { timeZone: 'Asia/Kolkata' })) };
 
             for (const key of sensorDataKeys) {
               datumWithSensorData[key] = sensorData[key] || 0;
